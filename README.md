@@ -31,6 +31,6 @@ The Campus Transportation App is designed to make campus life more accessible an
 - **Rental Service Database**: Manage data on rental stations, availability, reservations, and user rental history.
 
 #### 4. Infrastructure
-- **Hosting and Scaling: Robust infrastructure to handle real-time data, especially during peak hours.
-- **Security: Secure user data and ensure privacy.
-- **Reliability: Ensure high availability and minimal downtime. 
+- Hosting and Scaling: Robust infrastructure to handle real-time data, especially during peak hours.
+- Security: Secure user data and ensure privacy.
+- Reliability: Ensure high availability and minimal downtime. 
