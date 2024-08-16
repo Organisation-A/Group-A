@@ -33,4 +33,13 @@ The Campus Transportation App is designed to make campus life more accessible an
 #### 4. Infrastructure
 - Hosting and Scaling: Robust infrastructure to handle real-time data, especially during peak hours.
 - Security: Secure user data and ensure privacy.
-- Reliability: Ensure high availability and minimal downtime. 
+- Reliability: Ensure high availability and minimal downtime.
+
+#### 5. UI Development
+- **Frontend Framework**: The UI is built using modern frontend frameworks like React or Angular to ensure a responsive and dynamic user experience.
+- **Responsive Design**: Ensures that the application is accessible on various devices including desktops, tablets, and smartphones.
+- **Accessibility Compliance**: The UI adheres to WCAG (Web Content Accessibility Guidelines) to ensure inclusivity for users with disabilities.
+- **Custom Components**: Developed a set of reusable components for different sections like the map, transportation schedules, and rental services.
+- **Real-time Updates**: UI components are designed to update in real-time based on changes in transportation data, maps, and schedules.
+- **User Experience (UX)**: Focused on creating an intuitive, easy-to-navigate interface that enhances the overall user experience.
+- **Testing and Optimization**: Continuous testing is performed to optimize the UI for speed, performance, and cross-browser compatibility.
