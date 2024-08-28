@@ -1,45 +1,70 @@
-# Campus Transportation App
+# Getting Started with Create React App
 
-Welcome to the **Campus Transportation App** repository, a part of the Smart Campus System. This project aims to enhance mobility and accessibility on campus by providing efficient navigation and transportation services.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Project Overview
+## Available Scripts
 
-The Campus Transportation App is designed to make campus life more accessible and efficient for students, faculty, and staff by offering:
+In the project directory, you can run:
 
-### Key Features
+### `npm start`
 
-#### 1. User Interface
-- **Dashboard**: View maps, real-time transportation tracking, schedules, and manage rentals.
-- **Navigation Interface**: Turn-by-turn navigation for both walking and driving within the campus.
-- **Accessibility Options**: Features specifically designed for accessible routes and services.
-- **Transportation Schedule Interface**: View and manage transportation schedules.
-- **Rental Service Interface**: Locate rental stations, check availability, and manage rentals.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-#### 2. API Development
-- **Map Data API**: Retrieve and update map data, including buildings, routes, and amenities.
-- **GPS Tracking API**: Real-time location tracking for campus transportation services.
-- **Accessibility API**: Manage and provide data on accessible routes and facilities.
-- **Transportation Schedule API**: Manage and retrieve transportation schedules and updates.
-- **Route Optimization API**: Calculate and provide the best routes based on current conditions.
-- **Rental Service API**: Manage bike, scooter, and skateboard rentals, including availability, reservations, and returns.
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-#### 3. Database Management
-- **Map Database**: Store detailed map data, including buildings, routes, and points of interest.
-- **Transportation Database**: Store schedules, routes, and real-time tracking data.
-- **Accessibility Database**: Store data on accessible routes and facilities.
-- **User Routes Database**: Store user-specific routes, preferences, and navigation history.
-- **Rental Service Database**: Manage data on rental stations, availability, reservations, and user rental history.
+### `npm test`
 
-#### 4. Infrastructure
-- Hosting and Scaling: Robust infrastructure to handle real-time data, especially during peak hours.
-- Security: Secure user data and ensure privacy.
-- Reliability: Ensure high availability and minimal downtime.
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-#### 5. UI Development
-- **Frontend Framework**: The UI is built using modern frontend frameworks like React or Angular to ensure a responsive and dynamic user experience.
-- **Responsive Design**: Ensures that the application is accessible on various devices including desktops, tablets, and smartphones.
-- **Accessibility Compliance**: The UI adheres to WCAG (Web Content Accessibility Guidelines) to ensure inclusivity for users with disabilities.
-- **Custom Components**: Developed a set of reusable components for different sections like the map, transportation schedules, and rental services.
-- **Real-time Updates**: UI components are designed to update in real-time based on changes in transportation data, maps, and schedules.
-- **User Experience (UX)**: Focused on creating an intuitive, easy-to-navigate interface that enhances the overall user experience.
-- **Testing and Optimization**: Continuous testing is performed to optimize the UI for speed, performance, and cross-browser compatibility.
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
