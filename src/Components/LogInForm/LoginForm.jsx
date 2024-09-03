@@ -13,6 +13,10 @@ const LoginForm = () => {
       navigate('/sign-up');
     };
 
+    const handleSignIn=()=>{
+        navigate('/Homepage');
+    };
+
     return (
         <div className = 'wrapper'>
             <img></img>
@@ -36,7 +40,7 @@ const LoginForm = () => {
                 <div className='forgot'>
                     <a href='#'>Forgot password</a>
                 </div>
-                <button  type="submit">Sign in</button>
+                <button  type="submit" onClick={handleSignIn}>Sign in</button>
             </form>
 
         </div>
