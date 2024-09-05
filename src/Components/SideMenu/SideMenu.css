@@ -1,0 +1,78 @@
+/* SideMenu.css */
+
+/* Side menu container */
+.side-menu {
+  width: 60px; /* Collapsed width showing only icons */
+  height: 100vh;
+  background-color: white;
+  border-radius: 0 15px 15px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  padding-top: 20px; /* Space for the divider */
+}
+
+.side-menu:hover {
+  width: 200px; /* Expanded width */
+}
+
+.menu-item {
+  width: 100%;
+  padding: 15px 10px;
+  display: flex;
+  align-items: center;
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+  background-color: #abbdcf;
+}
+
+/* Icon styles */
+.icon {
+  font-size: 24px; /* Adjust icon size */
+  color: black;
+  margin-left: 10px;
+
+}
+
+/* Text visibility control */
+.menu-text {
+  margin-left: 10px;
+  font-size: 18px;
+  color: black;
+  white-space: nowrap;
+  opacity: 0; /* Hide text when collapsed */
+  transition: opacity 0.3s ease;
+}
+
+.side-menu:hover .menu-text {
+  opacity: 1; /* Show text when expanded */
+}
+
+/* Divider line on top of menu items */
+.menu-divider {
+  width: 80%;
+  height: 2px;
+  background-color: #ccc;
+  margin-bottom: 20px; /* Space below the divider */
+}
+
+
+.logo{
+  width: 65px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+a{
+  display: flex;
+  text-decoration: none;
+}
