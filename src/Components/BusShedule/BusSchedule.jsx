@@ -22,7 +22,7 @@ const Busschedule = () => {
   return (
     <div className="Bus-container">
       <SideMenu />
-      <div className="content-container">
+      <div className="content-container1">
         <SearchBar />
 
 

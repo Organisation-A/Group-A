@@ -1,5 +1,5 @@
 import React from 'react';
-import './HomePageForm.css'
+import './HomePageForm.css';
 import SideMenu from '../SideMenu/SideMenu';
 import SearchBar from '../SearchBar/SearchBar';
 import { FaRegListAlt } from "react-icons/fa";

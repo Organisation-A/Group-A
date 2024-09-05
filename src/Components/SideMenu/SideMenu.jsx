@@ -19,11 +19,11 @@ const SideMenu = () => {
   };
 
   const handleRentals = () => {
-    navigate('');
+    navigate('/Rentals');
   };
 
   const handleLogOut = () => {
-    navigate('/');
+    navigate('/Logout');
   };
 
 
@@ -46,14 +46,14 @@ const SideMenu = () => {
         </a>
       </div>
       <div className="menu-item">
-        <a href="">
+        <a onClick={handleRentals}>
         <span><CiRoute className="icon" /></span>
         <span className="menu-text">Rentals</span>
         </a>
 
       </div>
       <div className="menu-item">
-        <a href="">
+        <a onClick={handleLogOut}>
         <span><CiLogout className="icon" /></span>
         <span className="menu-text">Logout</span>
         </a>
