@@ -1,5 +1,5 @@
-//From Dari-dev
-import logo from "./logo.svg";
+//Logo is currently not being used
+//import logo from "./Components/Assets/black_logo.jpg";
 import "./App.css";
 import LoginForm from "./Components/LogInForm/LoginForm";
 import SigninForm from "./Components/SignupForm/SignupForm";
@@ -15,7 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LoginForm />} />
-          <Route path="/sign-up" element={<SigninForm />} />
+          <Route path="/Signup" element={<SigninForm />} />
           <Route path="/Homepage" element={<HomePageForm />} />
           <Route path="/BusSchedule" element={<BusSchedule />} />
           <Route path="/Rentals" element={<Rentals />} />
