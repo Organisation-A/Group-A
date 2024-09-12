@@ -1,102 +1,93 @@
 import React, { useState } from "react";
 import "./SignupForm.css";
 import { FaRegListAlt } from "react-icons/fa";
-import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
+import { IoEyeSharp, IoEyeOffSharp, IoMailSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { setDoc, doc } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, firestore } from "../../utils/firebase";
-import Alert from "../Alert/Alert";
+import { getFirestore } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import auth from "../../utils/firebase";
+
+const db = getFirestore();
+
+const validatePassword = (password) => {
+  // Password must contain at least 1 uppercase letter, 1 number, 1 special character, and be at least 8 characters long
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  return passwordRegex.test(password);
+};
 
 const SignUpForm = () => {
   const navigate = useNavigate();
 
+  // State variables for form inputs
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
 
-  const handleSignUpClick = () => {
-    navigate("/");
-  };
-
-  const checkPasswordStrength = (password) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    if (password.length < minLength) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
-      return "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
-    }
-    return "";
-  };
-
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
-    const passwordError = checkPasswordStrength(password);
-    if (passwordError) {
-      setError(passwordError);
+    if (!validatePassword(password)) {
+      toast.error(
+        "Password must be at least 8 characters long, include an uppercase letter, a number, and a special character."
+      );
       return;
     }
-
     try {
+      // Create a new user with Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      const user = userCredential.user;
 
-      await setDoc(doc(firestore, "Users", user.uid), {
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+
+      // Add the user's details to Firestore
+      await setDoc(doc(db, "Users", userCredential.user.uid), {
         firstName: firstName,
         lastName: lastName,
         email: email,
       });
 
-      console.log("Account created successfully");
-      setShowAlert(true);
-
-      // Navigate to homepage with state
-      navigate("/Homepage", {
-        state: { fullName: `${firstName} ${lastName}` },
-      });
+      toast.success("Account created successfully! Please verify your email.");
+      navigate("/", { state: { success: true } });
     } catch (error) {
-      console.error(error);
-      if (error.code === "auth/email-already-in-use") {
-        setError(
-          "This email is already registered. Please use a different email."
-        );
-      } else if (error.code === "auth/invalid-email") {
-        setError("Invalid email address. Please enter a valid email.");
-      } else if (error.code === "auth/weak-password") {
-        setError("Password is too weak. Please choose a stronger password.");
-      } else {
-        setError("An error occurred during signup. Please try again.");
-      }
+      // Handle any errors that may occur during signup
+      toast.error(error.message);
     }
+  };
+
+  const handleLoginClick = () => {
+    // If the user navigates to login without signing up, do not pass the success state
+    navigate("/");
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
     <div className="wrapper">
-      {showAlert && <Alert message="Account created successfully!" />}
       <div className="wrapper_alpha">
         <form className="SignupForm" onSubmit={handleSubmit}>
           <h1>Welcome to On-Site</h1>
           <div className="register-link">
             <p>
-              Already have an account?{" "}
-              <button onClick={handleSignUpClick}>Log In </button>
+              Already have an account? <a onClick={handleLoginClick}>Log In</a>
             </p>
           </div>
+
           <div className="wrapper_beta">
             <div className="input-box-small1">
               <input
@@ -108,6 +99,7 @@ const SignUpForm = () => {
               />
               <FaRegListAlt className="icon" />
             </div>
+
             <div className="input-box-small2">
               <input
                 type="text"
@@ -119,6 +111,7 @@ const SignUpForm = () => {
               <FaRegListAlt className="icon" />
             </div>
           </div>
+
           <div className="input-box">
             <input
               type="text"
@@ -129,19 +122,30 @@ const SignUpForm = () => {
             />
             <IoMailSharp className="icon" />
           </div>
+
           <div className="input-box">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // Toggle between password and text
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <IoEyeSharp className="icon" />
+            {/* Toggle icon between show/hide */}
+            {showPassword ? (
+              <IoEyeOffSharp
+                className="icon"
+                onClick={togglePasswordVisibility}
+              />
+            ) : (
+              <IoEyeSharp className="icon" onClick={togglePasswordVisibility} />
+            )}
           </div>
-          {error && <div className="error-message">{error}</div>}
+
           <button type="submit">Sign up</button>
         </form>
+        {/* Toast container to display notifications */}
+        <ToastContainer />
       </div>
     </div>
   );

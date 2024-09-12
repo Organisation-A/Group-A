@@ -1,107 +1,149 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./LoginForm.css";
-import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, firestore } from "../../utils/firebase";
-import Alert from "../Alert/Alert";
+import { IoEyeSharp, IoEyeOffSharp, IoMailSharp } from "react-icons/io5";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import auth from "../../utils/firebase";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginForm = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
+  const [resetEmail, setResetEmail] = useState(""); // For resetting password
+  const [showForgotPassword, setShowForgotPassword] = useState(false); // Toggle between login and forgot password form
+  const [showPassword, setShowPassword] = useState(false); //showing/hiding password
+
+  useEffect(() => {
+    // Show success message if redirected from signup
+    if (location.state?.success) {
+      toast.success("Sign-up successful! Please log in.", {
+        position: "top-right",
+        autoClose: 6000,
+      });
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleSignUpClick = () => {
-    navigate("/Signup");
+    navigate("/sign-up");
   };
 
   const onLogin = async (e) => {
     e.preventDefault();
-    setError("");
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log("Login successful!");
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success("Login successful!");
+      navigate("/homepage"); // Redirect to homepage on successful login
+    } catch (error) {
+      toast.error("Invalid credentials. Please try again.");
+    }
+  };
 
-      // Fetch user details from Firestore
-      const userDoc = await getDoc(
-        doc(firestore, "Users", userCredential.user.uid)
-      );
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const fullName = `${userData.firstName} ${userData.lastName}`;
+  // Handle password reset
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.error("Please enter your email address.");
+      return;
+    }
 
-        // Show alert
-        setShowAlert(true);
-
-        // Navigate to homepage with state
-        navigate("/Homepage", { state: { fullName } });
-      } else {
-        console.error("User document not found");
-        setError("User details not found. Please contact support.");
-      }
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast.success("Password reset email sent! Check your inbox.");
+      setShowForgotPassword(false); // Close the forgot password form
     } catch (error) {
       console.error(error.message);
-      if (error.code === "auth/invalid-credential") {
-        setError(
-          "Invalid email or password. Please check your credentials and try again."
-        );
-      } else if (error.code === "auth/user-disabled") {
-        setError("This account has been disabled. Please contact support.");
-      } else if (error.code === "auth/too-many-requests") {
-        setError("Too many failed login attempts. Please try again later.");
-      } else {
-        setError("An error occurred during login. Please try again.");
-      }
+      toast.error("Error sending password reset email. Please try again.");
     }
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
     <div className="wrapper">
-      {showAlert && <Alert message="Login successful!" />}
       <div className="wrapper_alpha">
-        <form onSubmit={onLogin}>
-          <h1>Welcome to On-Site</h1>
-          <div className="register-link">
-            <p>
-              Don't have an account?{" "}
-              <button onClick={handleSignUpClick}>Sign Up </button>
-            </p>
-          </div>
-          <div className="input-box">
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <IoMailSharp className="icon" />
-          </div>
-          <div className="input-box">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <IoEyeSharp className="icon" />
-          </div>
-          {error && <div className="error-message">{error}</div>}
-          <div className="forgot">
-            <button href="#">Forgot password</button>
-          </div>
-          <button type="submit">Sign in</button>
-        </form>
+        {!showForgotPassword ? (
+          <form onSubmit={onLogin}>
+            <h1>Welcome to On-Site</h1>
+            <div className="register-link">
+              <p>
+                Don't have an account?{" "}
+                <a onClick={handleSignUpClick}>Sign Up</a>
+              </p>
+            </div>
+
+            <div className="input-box">
+              <input
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <IoMailSharp className="icon" />
+            </div>
+            <div className="input-box">
+              <input
+                type={showPassword ? "text" : "password"} // Toggle between password and text
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              {/* Toggle icon between show/hide */}
+              {showPassword ? (
+                <IoEyeOffSharp
+                  className="icon"
+                  onClick={togglePasswordVisibility}
+                />
+              ) : (
+                <IoEyeSharp
+                  className="icon"
+                  onClick={togglePasswordVisibility}
+                />
+              )}
+            </div>
+            <div className="forgot">
+              <a href="#" onClick={() => setShowForgotPassword(true)}>
+                Forgot password
+              </a>
+            </div>
+            <button type="submit">Sign in</button>
+          </form>
+        ) : (
+          <form onSubmit={handleForgotPassword}>
+            <h1>Reset Password</h1>
+            <p>Enter your email to receive a password reset link.</p>
+
+            <div className="input-box">
+              <input
+                type="email"
+                placeholder="Email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+              />
+              <IoMailSharp className="icon" />
+            </div>
+
+            <button type="submit">Send Reset Email</button>
+            <button type="button" onClick={() => setShowForgotPassword(false)}>
+              Cancel
+            </button>
+          </form>
+        )}
+        <ToastContainer />
       </div>
     </div>
   );
