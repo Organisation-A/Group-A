@@ -32,7 +32,7 @@ const LoginForm = () => {
   }, [location, navigate]);
 
   const handleSignUpClick = () => {
-    navigate("/sign-up");
+    navigate("/Signup");
   };
 
   const onLogin = async (e) => {
