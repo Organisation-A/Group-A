@@ -10,7 +10,9 @@
   width: 300px;
   height: 200px;
   border-radius: 15px;
-  margin: auto;
+  margin-left: 30px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .logout .question {
