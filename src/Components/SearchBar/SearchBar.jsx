@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import './SearchBar.css'; // Import your CSS file
+import React, { useState } from "react";
+import "./SearchBar.css"; // Import your CSS file
 import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
 
 const SearchBar = () => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   const handleInputChange = (event) => {
     setQuery(event.target.value);
   };
 
   const handleClearClick = () => {
-    setQuery('');
+    setQuery("");
   };
 
   const handleSearch = (event) => {
@@ -23,7 +23,6 @@ const SearchBar = () => {
   return (
     <div className="search-bar-container">
       <form onSubmit={handleSearch} className="search-form">
-        
         <input
           type="text"
           value={query}

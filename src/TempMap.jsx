@@ -23,9 +23,9 @@ const Map = () => {
       zoom: 15,
     });
 
-    const marker = new mapboxgl.Marker({ color: "black" })
-      .setLngLat([MapLongitude, MapLatitude])
-      .addTo(map);
+    // const marker = new mapboxgl.Marker({ color: "black" })
+    //   .setLngLat([MapLongitude, MapLatitude])
+    //   .addTo(map);
 
     map.on("load", () => {
       map.addSource("route", {
@@ -168,6 +168,11 @@ const Map = () => {
     // Optionally set initial route
     directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
     directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
+
+    const topLeftControls = document.querySelector(".mapboxgl-ctrl-top-left");
+    topLeftControls.style.top = "100px";
+    topLeftControls.style.left = "30px";
+    topLeftControls.id = "directions";
 
     return () => map.remove();
   }, []);

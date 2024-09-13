@@ -1,21 +1,34 @@
 /* HomePageForm.css */
 
 .homepage-container {
-    display: flex;
-  }
-  
-  .content-container {
-     /* Allows the content to take up the remaining space next to the SideMenu */
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    margin-top: -8.5vh;
-  }
-  
-  .search-bar-container {
-    margin-left: 150px;
-    margin-top: -42vh; /* Align the search bar to the right */
-    padding: 10px 20px; /* Adjust padding as needed */
-  }
+  display: flex;
+  height: 100%;
+}
 
-  
+#homepage {
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* Ensures content doesn't spill out */
+}
+
+.back,
+.front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.back {
+  z-index: 1;
+}
+
+.front {
+  z-index: 2;
+  pointer-events: none; /* Allow clicks to pass through to background */
+}
+
+.front > * {
+  pointer-events: auto; /* Make foreground content interactive */
+}
