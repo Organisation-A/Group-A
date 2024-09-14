@@ -64,6 +64,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_837608FBE34348CA92F8959CAFD3C208 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB0EDAA233DF4B259A8856FE55CD3A8B }}
 
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --name Campus-Transport
+
       - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -71,6 +75,3 @@ jobs:
           app-name: "Campus-Transport"
           slot-name: "Production"
           package: .
-      - name: Restart Azure Web App
-        run: |
-          az webapp restart --name Campus-Transport
