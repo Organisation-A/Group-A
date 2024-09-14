@@ -71,3 +71,5 @@ jobs:
           app-name: "Campus-Transport"
           slot-name: "Production"
           package: .
+        env:
+         AZURE_WEBAPP_DEPLOY_DEBUG: 'true'
