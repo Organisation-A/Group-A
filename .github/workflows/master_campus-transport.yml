@@ -71,5 +71,6 @@ jobs:
           app-name: "Campus-Transport"
           slot-name: "Production"
           package: .
-        env:
-         AZURE_WEBAPP_DEPLOY_DEBUG: 'true'
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --name Campus-Transport
