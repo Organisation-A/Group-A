@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //Logo is currently not being used
 //import logo from "./Components/Assets/black_logo.jpg";
 import "./App.css";
@@ -21,6 +22,27 @@ function App() {
         <Route path="/Logout" element={<Logout />} />
       </Routes>
     </Router>
+=======
+// import logo from './logo.svg';
+import './App.css';
+import LoginForm from './Components/LogInForm/LoginForm';
+import SigninForm from './Components/SignupForm/SignupForm';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Homepage from './Components/Homepage/Homepage';
+
+
+function App() {
+  return (
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginForm/>} />
+          <Route path="/sign-up" element={<SigninForm/>} />
+          <Route path="/homepage" element={ <Homepage/> }/>
+        </Routes>
+      </Router>
+    </div>
+>>>>>>> origin/Gael
   );
 }
 
