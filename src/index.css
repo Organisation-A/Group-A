@@ -75,27 +75,41 @@ code {
   overflow: hidden; /* Ensures content doesn't spill out */
 }
 
-.back,
-.front {
-  position: absolute;
-  top: 0;
-  left: 0;
+.container {
+  position: relative;
   width: 100%;
   height: 100%;
 }
 
 .back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
 }
 
 .front {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
-  pointer-events: none; /* Allow clicks to pass through to background */
   display: flex;
+  pointer-events: none;
 }
 
-.front > * {
-  pointer-events: auto; /* Make foreground content interactive */
+.back > * {
+  pointer-events: auto;
+}
+
+/* Make all interactive elements in .front explicitly interactive */
+.front .search-form,
+.side-menu,
+.logout {
+  pointer-events: auto;
 }
 
 .hide-mapbox-controls .mapboxgl-control-container {
