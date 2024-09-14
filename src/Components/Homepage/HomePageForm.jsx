@@ -30,7 +30,7 @@ const HomepageForm = () => {
   return (
     <div className="homepage-container">
       <SideMenu />
-      <div className="content-container" id="homepage">
+      <div className="content-container map-back">
         <div className="back">
           <TempMap />
         </div>
