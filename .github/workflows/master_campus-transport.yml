@@ -79,3 +79,5 @@ jobs:
           app-name: "Campus-Transport"
           slot-name: "Production"
           package: .
+        env:
+          REACT_APP_MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
