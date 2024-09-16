@@ -65,6 +65,7 @@ const Busschedule = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

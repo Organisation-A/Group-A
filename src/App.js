@@ -1,3 +1,4 @@
+
 //Logo is currently not being used
 //import logo from "./Components/Assets/black_logo.jpg";
 import "./App.css";
@@ -21,6 +22,7 @@ function App() {
         <Route path="/Logout" element={<Logout />} />
       </Routes>
     </Router>
+
   );
 }
 
