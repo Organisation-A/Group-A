@@ -82,4 +82,4 @@ jobs:
           slot-name: "Production"
           package: .
         env:
-          REACT_APP_MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+          REACT_APP_MAPBOX_API_KEY: ${{ pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg }}
