@@ -1,21 +1,6 @@
 /* HomePageForm.css */
 
 .homepage-container {
-    display: flex;
-  }
-  
-  .content-container {
-     /* Allows the content to take up the remaining space next to the SideMenu */
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    margin-top: -8.5vh;
-  }
-  
-  .search-bar-container {
-    margin-left: 150px;
-    margin-top: -42vh; /* Align the search bar to the right */
-    padding: 10px 20px; /* Adjust padding as needed */
-  }
-
-  
+  display: flex;
+  height: 100%;
+}
