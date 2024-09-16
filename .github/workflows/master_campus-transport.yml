@@ -66,6 +66,14 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_837608FBE34348CA92F8959CAFD3C208 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB0EDAA233DF4B259A8856FE55CD3A8B }}
 
+      - name: Get Resource Group and Restart Azure Web App
+        run: |
+          # Get the resource group name
+          resourceGroup=$(az webapp list --query "[?name=='Campus-Transport'].resourceGroup" -o tsv)
+
+          # Restart the web app
+          az webapp restart --name Campus-Transport --resource-group $resourceGroup
+
       - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
