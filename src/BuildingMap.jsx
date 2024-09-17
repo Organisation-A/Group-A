@@ -24,13 +24,22 @@ function PlaceClick (map, directions, e) {
     const coordinates = e.features[0].geometry.coordinates.slice();
     const title = e.features[0].properties.title;
   
-    // Handle the click event (for example, show an alert)
-    alert(`You clicked on: ${title}`);
-
     // You can also center the map on the clicked text, if desired
     map.flyTo({ center: coordinates });
     directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
     directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
+
+    const popupContent = `
+    <h3>${title}</h3>
+    <p>Building Information:</p>
+    <p>This is the Mathematical Sciences Building. It hosts various research and academic departments.</p>
+  `;
+
+  // Create the popup and set its content
+  new mapboxgl.Popup()
+    .setLngLat(coordinates) // Position at the clicked coordinates
+    .setHTML(popupContent)  // Set the custom HTML content
+    .addTo(map);
 }
 
 

@@ -28,6 +28,20 @@ app.get('/getSchedule', async (req, res) => {
   }
 });
 
+app.get('/getLocations', async (req, res) => {
+  try {
+    const snapshot = await db.collection('Main Locations').get();
+
+    let data = [];
+    snapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching data', error });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
