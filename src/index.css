@@ -108,7 +108,10 @@ code {
 /* Make all interactive elements in .front explicitly interactive */
 .front .search-form,
 .side-menu,
-.logout {
+.logout,
+.bicycle-list,
+.bus-schedule-container,
+#directions{
   pointer-events: auto;
 }
 
