@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import "./SearchBar.css"; // Import your CSS file
+import { useNavigate } from "react-router-dom";
+import "./SearchBar.css";
 import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
   const handleInputChange = (event) => {
     setQuery(event.target.value);
   };
@@ -15,8 +18,11 @@ const SearchBar = () => {
 
   const handleSearch = (event) => {
     event.preventDefault();
-    // Implement your search logic here
     console.log("Searching for:", query);
+  };
+
+  const handleFocus = () => {
+    navigate("/list"); // Navigate to the list page when search is focused
   };
 
   return (
@@ -26,6 +32,7 @@ const SearchBar = () => {
           type="text"
           value={query}
           onChange={handleInputChange}
+          onFocus={handleFocus}
           placeholder="Search"
           className="search-input"
         />
