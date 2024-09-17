@@ -25,7 +25,7 @@ const Busschedule = () => {
   useEffect(() => {
     // Fetch data from your API
     axios
-      .get('https://campus-transport.azurewebsites.net/getSchedule')
+      .get('http://localhost:5000/getSchedule')
       .then((response) => {
         setBuses(response.data);
       })
