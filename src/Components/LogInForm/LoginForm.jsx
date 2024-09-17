@@ -106,11 +106,13 @@ const LoginForm = () => {
                 <IoEyeOffSharp
                   className="icon"
                   onClick={togglePasswordVisibility}
+                  data-testid="hide-password-icon" //id needed to find the element
                 />
               ) : (
                 <IoEyeSharp
                   className="icon"
                   onClick={togglePasswordVisibility}
+                  data-testid="show-password-icon"
                 />
               )}
             </div>

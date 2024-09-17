@@ -16,16 +16,17 @@ const Map = () => {
   const mapContainerRef = useRef(null);
 
   useEffect(() => {
+    // Skip map initialization if in test environment
+    if (process.env.NODE_ENV === "test") {
+      return;
+    }
+
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v11",
       center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
       zoom: 15,
     });
-
-    // const marker = new mapboxgl.Marker({ color: "black" })
-    //   .setLngLat([MapLongitude, MapLatitude])
-    //   .addTo(map);
 
     map.on("load", () => {
       map.addSource("route", {
@@ -74,73 +75,11 @@ const Map = () => {
                 type: "LineString",
               },
             },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.02575511000802, -26.18814538906875],
-                  [28.025864962648086, -26.188782278908292],
-                  [28.025901469672334, -26.189056231696256],
-                  [28.025925572247985, -26.189615921816973],
-                  [28.026037923743303, -26.189595926953743],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.024872388441793, -26.18923142609126],
-                  [28.024735892340573, -26.188384860028393],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.026392718765493, -26.190543241294442],
-                  [28.02559430985133, -26.190618836962116],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.030632027115104, -26.19148783987091],
-                  [28.03046459897726, -26.18999271818867],
-                  [28.0304206507208, -26.189592709270705],
-                  [28.030298528339472, -26.189330734251655],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.030553708489464, -26.190790430970544],
-                  [28.02980387206955, -26.19086205838824],
-                  [28.029464584336324, -26.190876518322327],
-                  [28.029000522632856, -26.19100326027082],
-                ],
-                type: "LineString",
-              },
-            },
           ],
         },
       });
 
-      //Add a layer to display the path (line)
+      // Add a layer to display the path (line)
       map.addLayer({
         id: "route",
         type: "line",
