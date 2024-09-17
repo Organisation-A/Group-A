@@ -28,7 +28,7 @@ const ListPage = () => {
   const navigate = useNavigate();
 
   const handleLoc = () => {
-    navigate("./location1");
+    navigate("/location1");
   };
 
 

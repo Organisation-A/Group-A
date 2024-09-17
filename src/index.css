@@ -110,6 +110,8 @@ code {
 .side-menu,
 .logout,
 .bicycle-list,
+.popup-overlay,
+.suggestions-list,
 .bus-schedule-container,
 #directions{
   pointer-events: auto;
