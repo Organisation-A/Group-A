@@ -1,26 +1,27 @@
-import React, { useEffect } from "react";
-import "./Rentals.css";
-import SideMenu from "../SideMenu/SideMenu";
-import TempMap from "../../TempMap.jsx";
-import SearchBar from "../SearchBar/SearchBar";
-//import { FaRegListAlt } from "react-icons/fa";
-//import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
-//import { useNavigate } from "react-router-dom";
+  import React, { useEffect } from "react";
+  import "./Rentals.css";
+  import SideMenu from "../SideMenu/SideMenu";
+  import TempMap from "../../TempMap.jsx";
+  import SearchBar from "../SearchBar/SearchBar";
+  //import { FaRegListAlt } from "react-icons/fa";
+  //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
+  //import { useNavigate } from "react-router-dom";
 
-const Rentals = () => {
-  useEffect(() => {
-    // Add class when component mounts
-    document.body.classList.add("hide-mapbox-controls");
+  const Rentals = () => {
 
-    // Remove class when component unmounts
-    return () => {
-      document.body.classList.remove("hide-mapbox-controls");
-    };
-  }, []);
-  const bicycles = [
-    {
-      name: "Bicycle A",
-      location: "OLS",
+    useEffect(() => {
+      // Add class when component mounts
+      document.body.classList.add("hide-mapbox-controls");
+
+      // Remove class when component unmounts
+      return () => {
+        document.body.classList.remove("hide-mapbox-controls");
+      };
+    }, []);
+    const bicycles = [
+      {
+        name: "Bicycle A",
+        location: "OLS",
       availability: "10/20",
       distance: "5m",
     },

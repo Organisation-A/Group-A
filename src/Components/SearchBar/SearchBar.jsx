@@ -5,7 +5,6 @@ import { MdClear } from "react-icons/md";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
-
   const handleInputChange = (event) => {
     setQuery(event.target.value);
   };
