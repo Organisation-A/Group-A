@@ -1,0 +1,40 @@
+.list-page {
+    padding: 20px;
+  }
+  
+  .suggestions-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: white;
+    height: 300px;
+    border-radius: 10px;
+    margin-left: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .suggestion-item {
+    padding: 16px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .suggestion-item:last-child {
+    border-bottom: none;
+  }
+  
+  .suggestion-item div {
+    font-size: 16px;
+  }
+
+  .dist{
+    margin-left: 50px;
+  }
+
+  a{
+    color: black;
+    text-decoration: none;
+  }
+  
