@@ -9,15 +9,19 @@ var MapLatitude = 26 + 11 / 60 + 20 / 3600;
 MapLatitude *= -1; // South
 var MapLongitude = 28 + 1 / 60 + 39 / 3600;
 
-var MapDestLatitude = 26 + 11 / 60 + 40 / 3600;
-MapDestLatitude *= -1; // South
-var MapDestLongitude = 28 + 1 / 60 + 20 / 3600;
+var MapDestLatitude = -26.191111;
+var MapDestLongitude = 28.028056;
 
 const Buildings = [
     {
-      name: "TW Kambule. Mathematical Science Building",
+      name: "TW Kambule. Mathematical Science Building.",
       latitude: -26.19,
       longitude: 28.0263888
+    },
+    {
+      name: "Wits Bus Stop.",
+      latitude: -26.191111,
+      longitude: 28.028056
     }
 ]
 
@@ -195,10 +199,26 @@ const BuildingMap = () => {
       profile: "mapbox/walking", // or 'mapbox/driving, 'mapbox/cycling'
     });
 
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          MapLatitude = position.coords.latitude;
+          MapLongitude = position.coords.longitude;
+          directions.setOrigin([MapLongitude, MapLatitude]);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+
     // Add the Directions control to the map
     map.addControl(directions, "top-left");
 
     // Optionally set initial route
+    console.log([MapLongitude, MapLatitude]);
     directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
     directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
 
@@ -206,7 +226,6 @@ const BuildingMap = () => {
     topLeftControls.style.top = "100px";
     topLeftControls.style.left = "30px";
     topLeftControls.id = "directions";
-
 
     // Add the GeoJSON source for the text points
     map.on('load', () => {
@@ -237,12 +256,12 @@ const BuildingMap = () => {
           source: 'points',
           layout: {
             'text-field': ['get', 'title'], // Display the 'title' property as text
-            'text-size': 16,
+            'text-size': 11,
             'text-offset': [0, 0.6], // Offset text above the point
             'text-anchor': 'top',
           },
           paint: {
-            'text-color': '#f00', // Text color
+            'text-color': '#000', // Text color
           },
         });
 
