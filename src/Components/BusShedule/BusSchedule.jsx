@@ -47,7 +47,7 @@ const Busschedule = () => {
           <div>
             <SearchBar id="busSearch" />
             <div className="bus-schedule-container">
-              <h2>Bus Schedule</h2>
+              <h2 className="BUs">Bus Schedule</h2>
               <div className="schedule">
                 {buses.map((item, index) => (
                   <div className="schedule-item" key={index}>
