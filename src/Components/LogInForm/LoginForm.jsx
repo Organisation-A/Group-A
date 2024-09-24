@@ -115,7 +115,7 @@ const LoginForm = () => {
             </div>
             <div className="forgot">
               <a href="#" onClick={() => setShowForgotPassword(true)}>
-                Forgot password
+                Forgot password ?
               </a>
             </div>
             <button type="submit">Sign in</button>
@@ -137,6 +137,8 @@ const LoginForm = () => {
             </div>
 
             <button type="submit">Send Reset Email</button>
+            <br />
+            <br />
             <button type="button" onClick={() => setShowForgotPassword(false)}>
               Cancel
             </button>
