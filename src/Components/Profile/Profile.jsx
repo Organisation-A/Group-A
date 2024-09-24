@@ -80,7 +80,7 @@ const Profile = () => {
             <div className="divider"></div>
             <div className="rent-history">
               <h4>Rent History</h4>
-              <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
+              <p className="rentinfo">24/09/2024 - Rented a bicycle(BikeID) at FNB</p>
               <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
               <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
             </div>
