@@ -23,7 +23,7 @@ const Busschedule = () => {
 
   //Get data
   useEffect(() => {
-    // Fetch data from your API
+    // Fetch data from your API 
     axios
       .get('https://campus-transport.azurewebsites.net/getSchedule')
       .then((response) => {
