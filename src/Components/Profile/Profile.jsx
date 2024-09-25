@@ -34,32 +34,32 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="Profile-container">
-      <div className="content-container map-back">
-        <div className="back">
-          <TempMap />
-        </div>
+    <div className="Profile-container map-back">
+      <div className="back">
+        <TempMap />
+      </div>
 
-        <div className="front">
-          <SideMenu />
-          <div>
-            <SearchBar id="busSearch" />
-          </div>
-        
+      <div className="front">
+        <SideMenu />
+        <div>
+          <SearchBar id="busSearch" />
+
           {/* Profile Card */}
           <div className="profile-card">
             <div className="profile-header">
               <div className="profile-picture">
-              <FaUser className="ProfileIcon1"/>
+                <FaUser className="ProfileIcon1" />
               </div>
               <div className="profile-info">
                 <h2>Hello</h2>
                 <p className="name">{fullName}</p>
                 <div className="progress-container">
                   <div className="progress-bar">
-                    <div className="progress" style={{ width: '60%' }}></div>
+                    <div className="progress" style={{ width: "60%" }}></div>
                   </div>
-                  <span><p className="credits">40/60 KuduBucks</p></span>
+                  <span>
+                    <p className="credits">40/60 KuduBucks</p>
+                  </span>
                 </div>
               </div>
             </div>
@@ -80,7 +80,9 @@ const Profile = () => {
             <div className="divider"></div>
             <div className="rent-history">
               <h4>Rent History</h4>
-              <p className="rentinfo">24/09/2024 - Rented a bicycle(BikeID) at FNB</p>
+              <p className="rentinfo">
+                24/09/2024 - Rented a bicycle(BikeID) at FNB
+              </p>
               <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
               <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
             </div>
@@ -92,4 +94,3 @@ const Profile = () => {
 };
 
 export default Profile;
-

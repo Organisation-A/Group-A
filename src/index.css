@@ -39,6 +39,8 @@ code {
   transition: width 0.3s ease;
   overflow: hidden;
   padding-top: 20px; /* Space for the divider */
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .side-menu:hover {
@@ -113,7 +115,9 @@ code {
 .popup-overlay,
 .suggestions-list,
 .bus-schedule-container,
-#directions{
+.profile-card,
+.lab-container,
+#directions {
   pointer-events: auto;
 }
 
