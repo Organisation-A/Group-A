@@ -1,8 +1,6 @@
 // Load dotenv to access environment variables
 require('dotenv').config({path: '../.env'}); 
 
-const admin = require('firebase-admin');
-
 // Create the service account object using environment variables
 const serviceAccount = {
   type: "service_account",
@@ -18,7 +16,7 @@ const serviceAccount = {
   universe_domain: "googleapis.com"
 };
 
-console.log('Service account object:', serviceAccount);
+// console.log('Service account object:', serviceAccount);
 
 module.exports = serviceAccount;
 
