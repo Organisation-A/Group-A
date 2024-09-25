@@ -18,7 +18,7 @@ const serviceAccount = {
   universe_domain: "googleapis.com"
 };
 
-// console.log('Service account object:', serviceAccount);
+console.log('Service account object:', serviceAccount);
 
 module.exports = serviceAccount;
 
