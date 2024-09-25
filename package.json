@@ -25,9 +25,7 @@
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "echo \"No tests specified\"",
-    "eject": "react-scripts eject",
-    "start:api": "node api/server.js",
-    "start:all": "concurrently \"npm run start\" \"npm run start:api\""
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
