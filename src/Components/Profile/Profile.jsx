@@ -5,11 +5,20 @@ import SearchBar from "../SearchBar/SearchBar";
 import { FaUser } from "react-icons/fa";
 import TempMap from "../../TempMap.jsx";
 import axios from "axios";
+import {
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { IoEyeSharp, IoEyeOffSharp, IoMailSharp } from "react-icons/io5";
+import auth from "../../utils/firebase";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = () => {
   const [buses, setBuses] = useState([]);
   const [fullName, setFullName] = useState("John Doe"); // Default to "John Doe" for now
-
+  const [email, setEmail] = useState("JohnDoe@gmail.com");
+  const [resetEmail] = useState(email); // For resetting password
+  const [showForgotPassword, setShowForgotPassword] = useState(false); // Toggle between profile and forgot password 
   useEffect(() => {
     // Add class when component mounts
     document.body.classList.add("hide-mapbox-controls");
@@ -33,6 +42,20 @@ const Profile = () => {
       });
   }, []);
 
+
+  // Handle password reset
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success("Password reset email sent! Check your inbox.");
+      setShowForgotPassword(false); // Close the forgot password form
+    } catch (error) {
+      console.error(error.message);
+      toast.error("Error sending password reset email. Please try again.");
+    }
+  };
+
   return (
     <div className="Profile-container">
       <div className="content-container map-back">
@@ -47,6 +70,9 @@ const Profile = () => {
           </div>
         
           {/* Profile Card */}
+          {!showForgotPassword ? (
+          <form action="">
+
           <div className="profile-card">
             <div className="profile-header">
               <div className="profile-picture">
@@ -55,6 +81,12 @@ const Profile = () => {
               <div className="profile-info">
                 <h2>Hello</h2>
                 <p className="name">{fullName}</p>
+                <p classname="email">{email}</p>
+                <div className="change">
+                  <a href="#" onClick={() => setShowForgotPassword(true)}>
+                    Change password
+                  </a>
+                </div>
                 <div className="progress-container">
                   <div className="progress-bar">
                     <div className="progress" style={{ width: '60%' }}></div>
@@ -85,6 +117,21 @@ const Profile = () => {
               <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
             </div>
           </div>
+          </form>
+            ) : (
+          <form onSubmit={handleForgotPassword}>
+            <h1>Reset Password</h1>
+            <p>A reset link will be sent to your email.</p>
+
+            <button type="submit">Send Reset Email</button>
+            <br />
+            <br />
+            <button type="button" onClick={() => setShowForgotPassword(false)}>
+              Cancel
+            </button>
+        </form>
+      )}
+      <ToastContainer />
         </div>
       </div>
     </div>
