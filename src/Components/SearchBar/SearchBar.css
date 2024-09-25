@@ -60,6 +60,7 @@
 .recent-searches-dropdown {
   position: relative;
   background: white;
+  border-radius: 15px;
   list-style: none;
   padding: 10px;
   margin: 0;
