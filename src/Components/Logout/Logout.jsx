@@ -23,9 +23,6 @@ const Logout = () => {
   const handleLogout = () => {
     navigate("/");
   };
-  const handleNo = () => {
-    navigate("/Homepage");
-  };
 
   return (
     <div className="Logout-container map-back">
@@ -42,7 +39,7 @@ const Logout = () => {
             <button className="yes" onClick={handleLogout}>
               Yes
             </button>
-            <button className="No" onClick={handleNo}>No</button>
+            <button className="No">No</button>
           </div>
         </div>
       </div>

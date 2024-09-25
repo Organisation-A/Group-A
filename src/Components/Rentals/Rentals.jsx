@@ -62,14 +62,14 @@ const Rentals = () => {
   };
 
   return (
-    <div className="rentals-container">
-      <SideMenu />
-      <div className="map-back">
+    <div className="rentals-container map-back">
+      <div className="">
         <div className="back">
           <TempMap />
         </div>
 
         <div className="front">
+          <SideMenu />
           <div>
             <SearchBar />
             <div className="bicycle-list" id="rentalsWidth">
@@ -101,8 +101,12 @@ const Rentals = () => {
                   Location: {selectedBike?.location} <br />
                   Distance: {selectedBike?.distance}
                 </p>
-                <button className="rentBtn" onClick={handleClosePopup}>rent</button>
-                <button className="closeBtn" onClick={handleClosePopup}>Close</button>
+                <button className="rentBtn" onClick={handleClosePopup}>
+                  rent
+                </button>
+                <button className="closeBtn" onClick={handleClosePopup}>
+                  Close
+                </button>
               </div>
             </div>
           )}

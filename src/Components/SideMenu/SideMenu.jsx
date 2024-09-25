@@ -37,7 +37,7 @@ const SideMenu = () => {
       <div className="menu-item">
         <a onClick={handleProfile}>
           <span>
-          <FaUser className="ProfileIcon"/>
+            <FaUser className="icon" />
           </span>
           <span className="menu-text">Profile</span>
         </a>
