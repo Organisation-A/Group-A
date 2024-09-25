@@ -14,7 +14,7 @@ admin.initializeApp({
 const db = admin.firestore();
 const app = express();
 app.use(cors({
-  origin: 'https://campus-transport.azurewebsites.net',  // Allow your frontend domain
+  origin: 'https://campus-transport.azurewebsites.net', 
   methods: ['GET', 'POST'],
 }));
 app.use(express.json());
