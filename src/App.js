@@ -8,8 +8,6 @@ import HomePageForm from "./Components/Homepage/HomePageForm";
 import BusSchedule from "./Components/BusShedule/BusSchedule";
 import Rentals from "./Components/Rentals/Rentals";
 import Logout from "./Components/Logout/Logout";
-import ListPage  from "./Components/SearchBar/list";
-import LabPage from "./Components/SearchBar/location1";
 import Profile from "./Components/Profile/Profile";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -23,8 +21,6 @@ function App() {
         <Route path="/BusSchedule" element={<BusSchedule />} />
         <Route path="/Rentals" element={<Rentals />} />
         <Route path="/Logout" element={<Logout />} />
-        <Route path="/list" element={<ListPage />} />
-        <Route path="/location1" element={<LabPage />} />
         <Route path="/Profile" element={<Profile />} />
       </Routes>
     </Router>
