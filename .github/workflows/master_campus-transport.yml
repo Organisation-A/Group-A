@@ -19,16 +19,13 @@ jobs:
       - name: Set up Node.js version
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: '20.x'
 
       - name: npm install, build, and test
         run: |
           npm install
-          npm install --save-dev @babel/plugin-proposal-private-property-in-object
           npm run build --if-present
-          npm test -- --detectOpenHandles
-        env:
-          CI: false
+          npm run test --if-present
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -43,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: "Production"
+      name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
@@ -56,28 +53,22 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_BD63950CDCD0413C99B00A725674AAE0 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_837608FBE34348CA92F8959CAFD3C208 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CB0EDAA233DF4B259A8856FE55CD3A8B }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5702215CA797484EB4943F6134F4052A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E1DB2BF53D684519A4831758943E592C }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_73E802A564FA43499483BBA425037FE3 }}
 
-      - name: Get Resource Group and Restart Azure Web App
-        run: |
-          # Get the resource group name
-          resourceGroup=$(az webapp list --query "[?name=='Campus-Transport'].resourceGroup" -o tsv)
-
-          # Restart the web app
-          az webapp restart --name Campus-Transport --resource-group $resourceGroup
-
-      - name: "Deploy to Azure Web App"
+      - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: "Campus-Transport"
-          slot-name: "Production"
+          app-name: 'Campus-Transport'
+          slot-name: 'Production'
           package: .
+          app_location: "/" # App source code path
+          api_location: "./api" # Api source code path - optional
         env:
-          REACT_APP_MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+          REACT_APP_MAPBOX_API_KEY: ${{ secrets.REACT_APP_MAPBOX_PUBLIC_TOKEN }}

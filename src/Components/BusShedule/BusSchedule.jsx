@@ -23,9 +23,9 @@ const Busschedule = () => {
 
   //Get data
   useEffect(() => {
-    // Fetch data from your API
+    // Fetch data from your API local URL: http://localhost:7071/api/bus/schedules just keep the /api/bus/schedules for the deployment
     axios
-      .get('http://localhost:5000/getSchedule')
+      .get('http://localhost:7071/api/bus/schedules')
       .then((response) => {
         setBuses(response.data);
       })
