@@ -15,17 +15,18 @@ app.use(express.json());
 
 // API route to fetch data from Firestore
 app.get('/getSchedule', async (req, res) => {
-  try {
-    const snapshot = await db.collection('Transportation Schedules').get();
+  res.status(400).send("No.");
+  // try {
+  //   const snapshot = await db.collection('Transportation Schedules').get();
 
-    let data = [];
-    snapshot.forEach((doc) => {
-      data.push({ id: doc.id, ...doc.data() });
-    });
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching data', error });
-  }
+  //   let data = [];
+  //   snapshot.forEach((doc) => {
+  //     data.push({ id: doc.id, ...doc.data() });
+  //   });
+  //   res.status(200).json(data);
+  // } catch (error) {
+  //   res.status(500).json({ message: 'Error fetching data', error });
+  // }
 });
 
 app.get('/getLocations', async (req, res) => {
@@ -43,7 +44,7 @@ app.get('/getLocations', async (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

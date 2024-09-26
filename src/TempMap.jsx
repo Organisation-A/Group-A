@@ -13,6 +13,10 @@ var MapDestLatitude = 26 + 11 / 60 + 40 / 3600;
 MapDestLatitude *= -1; // South
 var MapDestLongitude = 28 + 1 / 60 + 20 / 3600;
 
+function BikeStationClick(bikeStation){
+  alert(bikeStation);
+}
+
 const Map = () => {
   const mapContainerRef = useRef(null);
 
@@ -24,10 +28,26 @@ const Map = () => {
       zoom: 15,
     });
 
-    // const marker = new mapboxgl.Marker({ color: "black" })
-    //   .setLngLat([MapLongitude, MapLatitude])
-    //   .addTo(map);
 
+    const iconElement = document.createElement('img');
+    iconElement.src = 'https://static.vecteezy.com/system/resources/previews/023/485/589/non_2x/bike-icon-item-png.png'; // Custom icon URL
+    iconElement.style.width = '50px'; // Set icon size
+    iconElement.style.height = '50px';
+
+    const iconElement2 = document.createElement('img');
+    iconElement2.src = 'https://static.vecteezy.com/system/resources/previews/023/485/589/non_2x/bike-icon-item-png.png'; // Custom icon URL
+    iconElement2.style.width = '50px'; // Set icon size
+    iconElement2.style.height = '50px';
+
+    // Create a marker with the custom icon
+    const marker1 = new mapboxgl.Marker({ element: iconElement })
+      .setLngLat([28.026667, -26.188056]) // Marker position [lng, lat]
+      .addTo(map);
+
+    const marker2 = new mapboxgl.Marker({ element: iconElement2 })
+      .setLngLat([28.032439, -26.192422]) // Marker position [lng, lat]
+      .addTo(map);
+    
     map.on("load", () => {
       map.addSource("route", {
         type: "geojson",
@@ -140,7 +160,7 @@ const Map = () => {
           ],
         },
       });
-
+      
       //Add a layer to display the path (line)
       map.addLayer({
         id: "route",
@@ -156,28 +176,52 @@ const Map = () => {
         },
       });
     });
-
+    
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       unit: "metric", // or 'imperial'
       profile: "mapbox/walking", // or 'mapbox/driving, 'mapbox/cycling'
     });
-
+    
     // Add the Directions control to the map
     map.addControl(directions, "top-left");
-
+    
     // Optionally set initial route
     directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
     directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
 
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          MapLatitude = position.coords.latitude;
+          MapLongitude = position.coords.longitude;
+          directions.setOrigin([MapLongitude, MapLatitude]);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        }
+      );
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+    }
+    
     const topLeftControls = document.querySelector(".mapboxgl-ctrl-top-left");
     topLeftControls.style.top = "100px";
     topLeftControls.style.left = "30px";
     topLeftControls.id = "directions";
+    
+    // Add click event to the marker
+    marker1.getElement().addEventListener('click', () => {
+      BikeStationClick("West bike station");
+    });
 
+    marker2.getElement().addEventListener('click', () => {
+      BikeStationClick("East bike station");
+    });
+    
     return () => map.remove();
   }, []);
-
+  
   return (
     <div ref={mapContainerRef} style={{ width: "100%", height: "100vh" }} />
   );
