@@ -104,11 +104,13 @@ const LoginForm = () => {
               {showPassword ? (
                 <IoEyeOffSharp
                   className="icon"
+                  data-testid="hide-password-icon" //test ID for the hide password icon
                   onClick={togglePasswordVisibility}
                 />
               ) : (
                 <IoEyeSharp
                   className="icon"
+                  data-testid="show-password-icon" //test ID for the show password icon
                   onClick={togglePasswordVisibility}
                 />
               )}
