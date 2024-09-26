@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./BusSchedule.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
-import TempMap from "../../TempMap.jsx";
-import axios from 'axios';
+import BuildingMap from "../../BuildingMap";
+import axios from "axios";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
 //import { useNavigate } from "react-router-dom";
@@ -30,16 +30,15 @@ const Busschedule = () => {
         setBuses(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       });
   }, []);
-
 
   return (
     <div className="Bus-container">
       <div className="content-container map-back">
         <div className="back">
-          <TempMap />
+          <BuildingMap />
         </div>
 
         <div className="front">
@@ -65,7 +64,6 @@ const Busschedule = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

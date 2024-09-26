@@ -2,10 +2,11 @@ import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
+import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg";
-//mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
+// mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
 var MapLatitude = 26 + 11 / 60 + 20 / 3600;
 MapLatitude *= -1; // South
 var MapLongitude = 28 + 1 / 60 + 39 / 3600;
@@ -50,7 +51,7 @@ const BuildingMap = () => {
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/navigation-night-v1",
       center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
       zoom: 15,
     });
@@ -182,8 +183,8 @@ const BuildingMap = () => {
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#FFF", // Line color
-          "line-width": 6, // Line width
+          "line-color": "#2c3035", // Line color
+          "line-width": 3, // Line width
         },
       });
     });
@@ -240,7 +241,7 @@ const BuildingMap = () => {
           "text-anchor": "top",
         },
         paint: {
-          "text-color": "#f00", // Text color
+          "text-color": "#fff", // Text color
         },
       });
 
