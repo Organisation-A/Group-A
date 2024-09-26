@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import "./location1.css";
 import { useNavigate } from "react-router-dom";
 import SideMenu from "../SideMenu/SideMenu";
-import TempMap from "../../TempMap.jsx";
 import SearchBar from "../SearchBar/SearchBar";
+import BuildingMap from "../../BuildingMap";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
 
@@ -27,7 +27,7 @@ const LabPage = () => {
   return (
     <div className="list-page">
       <div className="back">
-        <TempMap />
+        <BuildingMap />
       </div>
 
       <div className="front">

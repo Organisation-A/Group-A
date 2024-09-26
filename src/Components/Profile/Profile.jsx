@@ -3,12 +3,12 @@ import "./Profile.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
 import { FaUser } from "react-icons/fa";
-import TempMap from "../../TempMap.jsx";
 import axios from "axios";
 import { sendPasswordResetEmail } from "firebase/auth";
 import auth from "../../utils/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BuildingMap from "../../BuildingMap";
 
 const Profile = () => {
   const [buses, setBuses] = useState([]);
@@ -56,7 +56,7 @@ const Profile = () => {
   return (
     <div className="Profile-container map-back">
       <div className="back">
-        <TempMap />
+        <BuildingMap />
       </div>
 
       <div className="front">
@@ -114,11 +114,13 @@ const Profile = () => {
                   <p className="rentinfo">
                     24/09/2024 - Rented a bicycle(BikeID) at FNB
                   </p>
-                  <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
-                  <p className="rentinfo">24/09/2024 - Rented a bicycle at FNB</p>
+                  <p className="rentinfo">
+                    24/09/2024 - Rented a bicycle at FNB
+                  </p>
+                  <p className="rentinfo">
+                    24/09/2024 - Rented a bicycle at FNB
+                  </p>
                 </div>
-
-                
               </>
             ) : (
               <>
@@ -134,7 +136,8 @@ const Profile = () => {
                   <button
                     type="button"
                     onClick={() => setShowForgotPassword(false)}
-                    className="btn-">
+                    className="btn-"
+                  >
                     Cancel
                   </button>
                 </form>

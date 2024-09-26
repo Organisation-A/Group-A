@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Rentals.css";
 import SideMenu from "../SideMenu/SideMenu";
-import TempMap from "../../TempMap.jsx";
 import SearchBar from "../SearchBar/SearchBar";
+import BuildingMap from "../../BuildingMap";
 
 const Rentals = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -65,7 +65,7 @@ const Rentals = () => {
     <div className="rentals-container map-back">
       <div className="">
         <div className="back">
-          <TempMap />
+          <BuildingMap />
         </div>
 
         <div className="front">

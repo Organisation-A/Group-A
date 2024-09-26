@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Logout.css";
 import SideMenu from "../SideMenu/SideMenu";
-import TempMap from "../../TempMap.jsx";
+import BuildingMap from "../../BuildingMap";
 import SearchBar from "../SearchBar/SearchBar";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
@@ -30,7 +30,7 @@ const Logout = () => {
   return (
     <div className="Logout-container map-back">
       <div className="back">
-        <TempMap />
+        <BuildingMap />
       </div>
 
       <div className="front">
@@ -42,7 +42,9 @@ const Logout = () => {
             <button className="yes" onClick={handleLogout}>
               Yes
             </button>
-            <button className="No" onClick={handleNo}>No</button>
+            <button className="No" onClick={handleNo}>
+              No
+            </button>
           </div>
         </div>
       </div>
