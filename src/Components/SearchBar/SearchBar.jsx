@@ -14,6 +14,7 @@ const SearchBar = () => {
   ]); // Example recent searches
   const [showDropdown, setShowDropdown] = useState(false); // For controlling the dropdown visibility
   const navigate = useNavigate();
+  const hide = document.querySelector(".mapboxgl-ctrl-top-left");
 
   const handleInputChange = (event) => {
     setQuery(event.target.value);
@@ -26,30 +27,47 @@ const SearchBar = () => {
   const handleSearch = (event) => {
     event.preventDefault();
     console.log("Searching for:", query);
-    
+
     // Add the search term to recent searches if it's not already in the list
     if (query && !recentSearches.includes(query)) {
       setRecentSearches([query, ...recentSearches]);
     }
 
     setShowDropdown(false); // Close the dropdown after searching
+    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    if (hide) {
+      hide.style.display = "block";
+    }
   };
 
   const handleFocus = () => {
     setShowDropdown(true); // Show the dropdown when focused
+    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    if (hide) {
+      hide.style.display = "none";
+    }
   };
 
   const handleSearchSelect = (searchTerm) => {
     setQuery(searchTerm);
     setShowDropdown(false); // Hide the dropdown after selecting a search
+    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    if (hide) {
+      hide.style.display = "block";
+    }
   };
 
   const handleBlur = () => {
-    setTimeout(() => setShowDropdown(false), 100); // Delay to allow click event
+    setShowDropdown(false);
+    //setTimeout(() => setShowDropdown(false), 100); // Delay to allow click event
+    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    if (hide) {
+      hide.style.display = "block";
+    }
   };
 
   // Filter recent searches based on the query
-  const filteredSearches = recentSearches.filter(search =>
+  const filteredSearches = recentSearches.filter((search) =>
     search.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -89,4 +107,3 @@ const SearchBar = () => {
 };
 
 export default SearchBar;
-
