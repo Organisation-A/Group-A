@@ -87,11 +87,18 @@
   padding: 15px;
   margin-top: 15px;
   width: 500px;
-  padding-left: 120px;
+  padding-left: 100px;
 }
 
 .search-icon-button{
   border: white;
   width: 20px;
   margin-right: 25px;
+}
+
+.search-description-image {
+  max-width: 350px; /* Ensure image doesn't overflow the container */
+  height: 250px;
+  margin-top: 10px;
+  border-radius: 15px;
 }

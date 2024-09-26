@@ -25,7 +25,7 @@ const SearchBar = () => {
     },
     "The Matrix": {
       text: "The Matrix is a 1999 science fiction film directed by the Wachowskis, depicting a dystopian future where humanity is unknowingly trapped inside a simulated reality.",
-      image: "https://example.com/matrix-image.jpg", // Replace with an actual image URL
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCL7CyPRgbx1mbh8cNN4Cu-2sMMg4ca8YdNw&s", // Replace with an actual image URL
     },
     "Solomon Mahlangu": {
       text: "Solomon Mahlangu was a South African struggle icon, executed in 1979 at the age of 22 for his fight against apartheid.",
@@ -146,7 +146,6 @@ const SearchBar = () => {
       {descriptionData && (
         <div className="search-result-card">
           <h3>Search Result for "{query}":</h3>
-          <p>{descriptionData.text}</p>
           {descriptionData.image && (
             <img
               src={descriptionData.image}
@@ -154,6 +153,7 @@ const SearchBar = () => {
               className="search-description-image"
             />
           )}
+          <p>{descriptionData.text}</p>
         </div>
       )}
 
