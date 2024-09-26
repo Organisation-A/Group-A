@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import "./BusSchedule.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
-import TempMap from "../../TempMap.jsx";
-import axios from 'axios';
+import BuildingMap from "../../BuildingMap";
+import axios from "axios";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
 //import { useNavigate } from "react-router-dom";
@@ -23,23 +23,22 @@ const Busschedule = () => {
 
   //Get data
   useEffect(() => {
-    // Fetch data from your API
+    // Fetch data from your API local URL: http://localhost:7071/api/bus/schedules just keep the /api/bus/schedules for the deployment
     axios
-      .get('https://campus-transport.azurewebsites.net/getSchedule')
+      .get('http://localhost:7071/api/bus/schedules')
       .then((response) => {
         setBuses(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       });
   }, []);
-
 
   return (
     <div className="Bus-container">
       <div className="content-container map-back">
         <div className="back">
-          <TempMap />
+          <BuildingMap />
         </div>
 
         <div className="front">
@@ -47,7 +46,7 @@ const Busschedule = () => {
           <div>
             <SearchBar id="busSearch" />
             <div className="bus-schedule-container">
-              <h2>Bus Schedule</h2>
+              <h2 className="BUs">Bus Schedule</h2>
               <div className="schedule">
                 {buses.map((item, index) => (
                   <div className="schedule-item" key={index}>
@@ -65,7 +64,6 @@ const Busschedule = () => {
         </div>
       </div>
     </div>
-
   );
 };
 
