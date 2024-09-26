@@ -140,6 +140,12 @@ const Profile = () => {
                 </form>
               </>
             )}
+              {/* information about rental */}
+                <div className="bicycle-item">
+                  <h3>Current Rental</h3>
+                
+              </div>
+           
           </div>
         </div>
       </div>
