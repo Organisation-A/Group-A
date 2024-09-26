@@ -27,6 +27,10 @@ const Buildings = [
     }
 ]
 
+function BikeStationClick(bikeStation){
+  alert(bikeStation);
+}
+
 function PlaceClick(map, directions, e) {
   const coordinates = e.features[0].geometry.coordinates.slice();
   const title = e.features[0].properties.title;
@@ -60,9 +64,24 @@ const BuildingMap = () => {
       zoom: 15,
     });
 
-    // const marker = new mapboxgl.Marker({ color: "black" })
-    //   .setLngLat([MapLongitude, MapLatitude])
-    //   .addTo(map);
+    const iconElement = document.createElement('img');
+    iconElement.src = 'https://static.vecteezy.com/system/resources/previews/023/485/589/non_2x/bike-icon-item-png.png'; // Custom icon URL
+    iconElement.style.width = '50px'; // Set icon size
+    iconElement.style.height = '50px';
+
+    const iconElement2 = document.createElement('img');
+    iconElement2.src = 'https://static.vecteezy.com/system/resources/previews/023/485/589/non_2x/bike-icon-item-png.png'; // Custom icon URL
+    iconElement2.style.width = '50px'; // Set icon size
+    iconElement2.style.height = '50px';
+
+    // Create a marker with the custom icon
+    const marker1 = new mapboxgl.Marker({ element: iconElement })
+      .setLngLat([28.026667, -26.188056]) // Marker position [lng, lat]
+      .addTo(map);
+
+    const marker2 = new mapboxgl.Marker({ element: iconElement2 })
+      .setLngLat([28.032439, -26.192422]) // Marker position [lng, lat]
+      .addTo(map);
 
     map.on("load", () => {
       map.addSource("route", {
@@ -278,6 +297,15 @@ const BuildingMap = () => {
       map.on("mouseleave", "text-layer", () => {
         map.getCanvas().style.cursor = "";
       });
+    });
+
+    // Add click event to the marker
+    marker1.getElement().addEventListener('click', () => {
+      BikeStationClick("West bike station");
+    });
+
+    marker2.getElement().addEventListener('click', () => {
+      BikeStationClick("East bike station");
     });
 
     return () => map.remove();
