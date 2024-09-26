@@ -2,67 +2,32 @@ import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
-import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg";
-// mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
+mapboxgl.accessToken = 'pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg';
+//mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
 var MapLatitude = 26 + 11 / 60 + 20 / 3600;
 MapLatitude *= -1; // South
 var MapLongitude = 28 + 1 / 60 + 39 / 3600;
 
-var MapDestLatitude = -26.191111;
-var MapDestLongitude = 28.028056;
-
-const Buildings = [
-    {
-      name: "TW Kambule. Mathematical Science Building.",
-      latitude: -26.19,
-      longitude: 28.0263888
-    },
-    {
-      name: "Wits Bus Stop.",
-      latitude: -26.191111,
-      longitude: 28.028056
-    }
-]
+var MapDestLatitude = 26 + 11 / 60 + 40 / 3600;
+MapDestLatitude *= -1; // South
+var MapDestLongitude = 28 + 1 / 60 + 20 / 3600;
 
 function BikeStationClick(bikeStation){
   alert(bikeStation);
 }
 
-function PlaceClick(map, directions, e) {
-  const coordinates = e.features[0].geometry.coordinates.slice();
-  const title = e.features[0].properties.title;
-
-  // You can also center the map on the clicked text, if desired
-  map.flyTo({ center: coordinates });
-  directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
-  directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
-
-  const popupContent = `
-    <h3>${title}</h3>
-    <p>Building Information:</p>
-    <p>This is the Mathematical Sciences Building. It hosts various research and academic departments.</p>
-  `;
-
-  // Create the popup and set its content
-  new mapboxgl.Popup()
-    .setLngLat(coordinates) // Position at the clicked coordinates
-    .setHTML(popupContent) // Set the custom HTML content
-    .addTo(map);
-}
-
-const BuildingMap = () => {
+const Map = () => {
   const mapContainerRef = useRef(null);
 
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/navigation-night-v1",
+      style: "mapbox://styles/mapbox/streets-v11",
       center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
       zoom: 15,
     });
+
 
     const iconElement = document.createElement('img');
     iconElement.src = 'https://static.vecteezy.com/system/resources/previews/023/485/589/non_2x/bike-icon-item-png.png'; // Custom icon URL
@@ -82,7 +47,7 @@ const BuildingMap = () => {
     const marker2 = new mapboxgl.Marker({ element: iconElement2 })
       .setLngLat([28.032439, -26.192422]) // Marker position [lng, lat]
       .addTo(map);
-
+    
     map.on("load", () => {
       map.addSource("route", {
         type: "geojson",
@@ -195,7 +160,7 @@ const BuildingMap = () => {
           ],
         },
       });
-
+      
       //Add a layer to display the path (line)
       map.addLayer({
         id: "route",
@@ -206,17 +171,24 @@ const BuildingMap = () => {
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#2c3035", // Line color
-          "line-width": 3, // Line width
+          "line-color": "#FFF", // Line color
+          "line-width": 6, // Line width
         },
       });
     });
-
+    
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       unit: "metric", // or 'imperial'
       profile: "mapbox/walking", // or 'mapbox/driving, 'mapbox/cycling'
     });
+    
+    // Add the Directions control to the map
+    map.addControl(directions, "top-left");
+    
+    // Optionally set initial route
+    directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
+    directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -232,73 +204,12 @@ const BuildingMap = () => {
     } else {
       console.error('Geolocation is not supported by this browser.');
     }
-
-    // Add the Directions control to the map
-    map.addControl(directions, "top-left");
-
-    // Optionally set initial route
-    console.log([MapLongitude, MapLatitude]);
-    directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
-    directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
-
+    
     const topLeftControls = document.querySelector(".mapboxgl-ctrl-top-left");
     topLeftControls.style.top = "100px";
     topLeftControls.style.left = "30px";
     topLeftControls.id = "directions";
-
-    // Add the GeoJSON source for the text points
-    map.on("load", () => {
-      // Prepare an array of features from the points array
-      const features = Buildings.map((building) => ({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [building.longitude, building.latitude],
-        },
-        properties: {
-          title: building.name,
-        },
-      }));
-
-      map.addSource("points", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: features, // Add generated features to the GeoJSON
-        },
-      });
-
-      // Add a layer to display the text
-      map.addLayer({
-        id: "text-layer",
-        type: "symbol",
-        source: "points",
-        layout: {
-          "text-field": ["get", "title"], // Display the 'title' property as text
-          "text-size": 16,
-          "text-offset": [0, 0.6], // Offset text above the point
-          "text-anchor": "top",
-        },
-        paint: {
-          "text-color": "#fff", // Text color
-        },
-      });
-
-      map.on("click", "text-layer", (e) => {
-        PlaceClick(map, directions, e);
-      });
-
-      // Change the cursor to a pointer when hovering over the text
-      map.on("mouseenter", "text-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-
-      // Reset the cursor when it leaves the text
-      map.on("mouseleave", "text-layer", () => {
-        map.getCanvas().style.cursor = "";
-      });
-    });
-
+    
     // Add click event to the marker
     marker1.getElement().addEventListener('click', () => {
       BikeStationClick("West bike station");
@@ -307,13 +218,13 @@ const BuildingMap = () => {
     marker2.getElement().addEventListener('click', () => {
       BikeStationClick("East bike station");
     });
-
+    
     return () => map.remove();
   }, []);
-
+  
   return (
     <div ref={mapContainerRef} style={{ width: "100%", height: "100vh" }} />
   );
 };
 
-export default BuildingMap;
+export default Map;
