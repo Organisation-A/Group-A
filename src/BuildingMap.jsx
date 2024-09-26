@@ -57,6 +57,9 @@ const BuildingMap = () => {
   const mapContainerRef = useRef(null);
 
   useEffect(() => {
+    if (process.env.NODE_ENV === 'test') {
+      return; // Skip Mapbox map initialization during tests
+    }
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/navigation-night-v1",
