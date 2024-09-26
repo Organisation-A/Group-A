@@ -145,7 +145,7 @@ const SearchBar = () => {
       )}
       {descriptionData && (
         <div className="search-result-card">
-          <h3>Search Result for "{query}":</h3>
+          <h3 className="header1">Search Result for "{query}":</h3>
           {descriptionData.image && (
             <img
               src={descriptionData.image}
