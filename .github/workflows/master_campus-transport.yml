@@ -86,9 +86,11 @@ jobs:
         run: npm install --prefix api
 
       - name: Login to Azure (Backend)
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5702215CA797484EB4943F6134F4052A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E1DB2BF53D684519A4831758943E592C }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_73E802A564FA43499483BBA425037FE3 }}
 
       - name: Deploy Azure Functions
         uses: Azure/functions-action@v1
