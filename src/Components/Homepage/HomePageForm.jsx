@@ -28,18 +28,15 @@ const HomepageForm = () => {
     }
   }, [location]);
 
-
-  //<TempMap />
   return (
     <div className="homepage-container">
       <SideMenu />
       <div className="content-container map-back">
         <div className="back">
-          <BuildingMap />
+          <TempMap />
         </div>
         <div className="front">
           <SearchBar />
-          {showWelcome && <Alert message={`Welcome, ${fullName}!`} />}
         </div>
       </div>
     </div>

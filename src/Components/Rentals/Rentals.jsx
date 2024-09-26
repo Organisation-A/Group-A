@@ -1,27 +1,27 @@
-  import React, { useEffect } from "react";
-  import "./Rentals.css";
-  import SideMenu from "../SideMenu/SideMenu";
-  import TempMap from "../../TempMap.jsx";
-  import SearchBar from "../SearchBar/SearchBar";
-  //import { FaRegListAlt } from "react-icons/fa";
-  //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
-  //import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import "./Rentals.css";
+import SideMenu from "../SideMenu/SideMenu";
+import TempMap from "../../TempMap.jsx";
+import SearchBar from "../SearchBar/SearchBar";
 
-  const Rentals = () => {
+const Rentals = () => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedBike, setSelectedBike] = useState(null);
 
-    useEffect(() => {
-      // Add class when component mounts
-      document.body.classList.add("hide-mapbox-controls");
+  useEffect(() => {
+    // Add class when component mounts
+    document.body.classList.add("hide-mapbox-controls");
 
-      // Remove class when component unmounts
-      return () => {
-        document.body.classList.remove("hide-mapbox-controls");
-      };
-    }, []);
-    const bicycles = [
-      {
-        name: "Bicycle A",
-        location: "OLS",
+    // Remove class when component unmounts
+    return () => {
+      document.body.classList.remove("hide-mapbox-controls");
+    };
+  }, []);
+
+  const bicycles = [
+    {
+      name: "Bicycle A",
+      location: "OLS",
       availability: "10/20",
       distance: "5m",
     },
@@ -51,16 +51,26 @@
     },
   ];
 
+  const handleRentClick = (bike) => {
+    setSelectedBike(bike);
+    setShowPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setSelectedBike(null);
+  };
+
   return (
-    <div className="rentals-container">
-      <SideMenu />
-      <div className="map-back">
+    <div className="rentals-container map-back">
+      <div className="">
         <div className="back">
           <TempMap />
         </div>
 
         <div className="front">
-          <dir>
+          <SideMenu />
+          <div>
             <SearchBar />
             <div className="bicycle-list" id="rentalsWidth">
               {bicycles.map((bike, index) => (
@@ -70,13 +80,36 @@
                     Location: {bike.location} Availability: {bike.availability}
                   </p>
                   <p>Distance: {bike.distance}</p>
-                  <a href="#" className="rent-link">
+                  <a
+                    href="#"
+                    className="rent-link"
+                    onClick={() => handleRentClick(bike)}
+                  >
                     Rent
                   </a>
                 </div>
               ))}
             </div>
-          </dir>
+          </div>
+
+          {showPopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <h4>Rent {selectedBike?.name}</h4>
+                <p>
+                  Are you sure you want to rent this bicycle? <br />
+                  Location: {selectedBike?.location} <br />
+                  Distance: {selectedBike?.distance}
+                </p>
+                <button className="rentBtn" onClick={handleClosePopup}>
+                  rent
+                </button>
+                <button className="closeBtn" onClick={handleClosePopup}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

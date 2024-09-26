@@ -39,6 +39,8 @@ code {
   transition: width 0.3s ease;
   overflow: hidden;
   padding-top: 20px; /* Space for the divider */
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .side-menu:hover {
@@ -108,7 +110,14 @@ code {
 /* Make all interactive elements in .front explicitly interactive */
 .front .search-form,
 .side-menu,
-.logout {
+.logout,
+.bicycle-list,
+.popup-overlay,
+.suggestions-list,
+.bus-schedule-container,
+.profile-card,
+.lab-container,
+#directions {
   pointer-events: auto;
 }
 
