@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Rentals.css";
 import SideMenu from "../SideMenu/SideMenu";
-import TempMap from "../../TempMap.jsx";
 import SearchBar from "../SearchBar/SearchBar";
 import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+
 
 const Rentals = () => {
   const navigate = useNavigate();
@@ -110,14 +110,14 @@ const Rentals = () => {
   };
 
   return (
-    <div className="rentals-container">
-      <SideMenu />
-      <div className="map-back">
+    <div className="rentals-container map-back">
+      <div className="">
         <div className="back">
-          <TempMap />
+          <BuildingMap />
         </div>
 
         <div className="front">
+          <SideMenu />
           <div>
             <SearchBar />
             <div className="bicycle-list" id="rentalsWidth">

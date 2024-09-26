@@ -3,8 +3,6 @@ import "./HomePageForm.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
 import { useLocation } from "react-router-dom";
-import Alert from "../Alert/Alert";
-import TempMap from "../../TempMap.jsx";
 import BuildingMap from "../../BuildingMap.jsx";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
@@ -28,8 +26,6 @@ const HomepageForm = () => {
     }
   }, [location]);
 
-
-  //<TempMap />
   return (
     <div className="homepage-container">
       <SideMenu />
@@ -39,7 +35,6 @@ const HomepageForm = () => {
         </div>
         <div className="front">
           <SearchBar />
-          {showWelcome && <Alert message={`Welcome, ${fullName}!`} />}
         </div>
       </div>
     </div>

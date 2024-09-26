@@ -43,3 +43,40 @@
 .clear-icon:hover {
   color: #333;
 }
+
+/* Full-screen overlay */
+.overlay {
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100vh;
+  margin-right: -15vh;
+  margin-top: 20px;
+  background: transparent; /* Dark overlay */
+  z-index: 999; /* Above all content */
+}
+
+/* Dropdown list styles */
+.recent-searches-dropdown {
+  position: relative;
+  background: white;
+  border-radius: 15px;
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+}
+
+.recent-search-item {
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.recent-search-item:hover {
+  background: #f0f0f0;
+}
+
+/* Hide page content when dropdown is visible */
+.content-hidden {
+  display: none;
+}

@@ -2,9 +2,11 @@ import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
+import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg';
-//mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg";
+// mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
 var MapLatitude = 26 + 11 / 60 + 20 / 3600;
 MapLatitude *= -1; // South
 var MapLongitude = 28 + 1 / 60 + 39 / 3600;
@@ -14,23 +16,23 @@ MapDestLatitude *= -1; // South
 var MapDestLongitude = 28 + 1 / 60 + 20 / 3600;
 
 const Buildings = [
-    {
-      name: "TW Kambule. Mathematical Science Building",
-      latitude: -26.19,
-      longitude: 28.0263888
-    }
-]
+  {
+    name: "TW Kambule. Mathematical Science Building",
+    latitude: -26.19,
+    longitude: 28.0263888,
+  },
+];
 
-function PlaceClick (map, directions, e) {
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const title = e.features[0].properties.title;
-  
-    // You can also center the map on the clicked text, if desired
-    map.flyTo({ center: coordinates });
-    directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
-    directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
+function PlaceClick(map, directions, e) {
+  const coordinates = e.features[0].geometry.coordinates.slice();
+  const title = e.features[0].properties.title;
 
-    const popupContent = `
+  // You can also center the map on the clicked text, if desired
+  map.flyTo({ center: coordinates });
+  directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
+  directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
+
+  const popupContent = `
     <h3>${title}</h3>
     <p>Building Information:</p>
     <p>This is the Mathematical Sciences Building. It hosts various research and academic departments.</p>
@@ -39,21 +41,19 @@ function PlaceClick (map, directions, e) {
   // Create the popup and set its content
   new mapboxgl.Popup()
     .setLngLat(coordinates) // Position at the clicked coordinates
-    .setHTML(popupContent)  // Set the custom HTML content
+    .setHTML(popupContent) // Set the custom HTML content
     .addTo(map);
 }
-
 
 const BuildingMap = () => {
   const mapContainerRef = useRef(null);
 
   useEffect(() => {
-
     const map = new mapboxgl.Map({
-    container: mapContainerRef.current,
-    style: "mapbox://styles/mapbox/streets-v11",
-    center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
-    zoom: 15,
+      container: mapContainerRef.current,
+      style: "mapbox://styles/mapbox/navigation-night-v1",
+      center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
+      zoom: 15,
     });
 
     // const marker = new mapboxgl.Marker({ color: "black" })
@@ -183,8 +183,8 @@ const BuildingMap = () => {
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#FFF", // Line color
-          "line-width": 6, // Line width
+          "line-color": "#2c3035", // Line color
+          "line-width": 3, // Line width
         },
       });
     });
@@ -207,58 +207,57 @@ const BuildingMap = () => {
     topLeftControls.style.left = "30px";
     topLeftControls.id = "directions";
 
-
     // Add the GeoJSON source for the text points
-    map.on('load', () => {
-        // Prepare an array of features from the points array
-        const features = Buildings.map(building => ({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [building.longitude, building.latitude],
-          },
-          properties: {
-            title: building.name,
-          },
-        }));
-
-    map.addSource('points', {
-        type: 'geojson',
-        data: {
-            type: 'FeatureCollection',
-            features: features, // Add generated features to the GeoJSON
+    map.on("load", () => {
+      // Prepare an array of features from the points array
+      const features = Buildings.map((building) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [building.longitude, building.latitude],
         },
-        });
-  
-        // Add a layer to display the text
-        map.addLayer({
-          id: 'text-layer',
-          type: 'symbol',
-          source: 'points',
-          layout: {
-            'text-field': ['get', 'title'], // Display the 'title' property as text
-            'text-size': 16,
-            'text-offset': [0, 0.6], // Offset text above the point
-            'text-anchor': 'top',
-          },
-          paint: {
-            'text-color': '#f00', // Text color
-          },
-        });
+        properties: {
+          title: building.name,
+        },
+      }));
 
-        map.on('click', 'text-layer', (e) => {
-            PlaceClick(map, directions, e);
-          });
-  
-        // Change the cursor to a pointer when hovering over the text
-        map.on('mouseenter', 'text-layer', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-  
-        // Reset the cursor when it leaves the text
-        map.on('mouseleave', 'text-layer', () => {
-          map.getCanvas().style.cursor = '';
-        });
+      map.addSource("points", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: features, // Add generated features to the GeoJSON
+        },
+      });
+
+      // Add a layer to display the text
+      map.addLayer({
+        id: "text-layer",
+        type: "symbol",
+        source: "points",
+        layout: {
+          "text-field": ["get", "title"], // Display the 'title' property as text
+          "text-size": 16,
+          "text-offset": [0, 0.6], // Offset text above the point
+          "text-anchor": "top",
+        },
+        paint: {
+          "text-color": "#fff", // Text color
+        },
+      });
+
+      map.on("click", "text-layer", (e) => {
+        PlaceClick(map, directions, e);
+      });
+
+      // Change the cursor to a pointer when hovering over the text
+      map.on("mouseenter", "text-layer", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      // Reset the cursor when it leaves the text
+      map.on("mouseleave", "text-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
     });
 
     return () => map.remove();
