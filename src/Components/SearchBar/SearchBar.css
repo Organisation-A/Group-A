@@ -80,3 +80,18 @@
 .content-hidden {
   display: none;
 }
+
+.search-result-card{
+  background-color: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 15px;
+  width: 500px;
+  padding-left: 120px;
+}
+
+.search-icon-button{
+  border: white;
+  width: 20px;
+  margin-right: 25px;
+}
