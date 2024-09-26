@@ -87,7 +87,8 @@
   padding: 15px;
   margin-top: 15px;
   width: 500px;
-  padding-left: 100px;
+  height: 600px;
+  padding-left: 80px;
 }
 
 .search-icon-button{
@@ -99,6 +100,11 @@
 .search-description-image {
   max-width: 350px; /* Ensure image doesn't overflow the container */
   height: 250px;
-  margin-top: 10px;
+  margin-top: 25px;
   border-radius: 15px;
+}
+
+.description1{
+  margin-top: 50px;
+  margin-right: 60px;
 }

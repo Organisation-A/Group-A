@@ -153,7 +153,7 @@ const SearchBar = () => {
               className="search-description-image"
             />
           )}
-          <p>{descriptionData.text}</p>
+          <p className="description1">{descriptionData.text}</p>
         </div>
       )}
 
