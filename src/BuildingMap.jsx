@@ -51,7 +51,7 @@ const BuildingMap = () => {
   useEffect(() => {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/navigation-night-v1",
       center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
       zoom: 15,
     });
@@ -183,8 +183,8 @@ const BuildingMap = () => {
           "line-cap": "round",
         },
         paint: {
-          "line-color": "#FFF", // Line color
-          "line-width": 6, // Line width
+          "line-color": "#2c3035", // Line color
+          "line-width": 3, // Line width
         },
       });
     });
@@ -241,7 +241,7 @@ const BuildingMap = () => {
           "text-anchor": "top",
         },
         paint: {
-          "text-color": "#f00", // Text color
+          "text-color": "#fff", // Text color
         },
       });
 
