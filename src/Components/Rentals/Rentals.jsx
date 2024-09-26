@@ -6,6 +6,7 @@ import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import BuildingMap from "../../BuildingMap.jsx";
 
 
 const Rentals = () => {
@@ -67,7 +68,7 @@ const Rentals = () => {
   useEffect(() => {
     // Fetch data from your API http://localhost:5000/getRent
     axios
-      .get('https://campus-transport.azurewebsites.net/api/getRent')
+      .get('http://localhost:7071/api/getRent')
       .then((response) => {
         setRental(response.data);
       })
@@ -83,7 +84,7 @@ const Rentals = () => {
     // console.log('Location:', rent); // Check user ID
 
     axios
-      .post(`https://campus-transport.azurewebsites.net/api/rent/${UID}/${ritem}/${rent}`, {
+      .post(`http://localhost:7071/api/rent/${UID}/${ritem}/${rent}`, {
         item: ritem,
         location: rent
       })

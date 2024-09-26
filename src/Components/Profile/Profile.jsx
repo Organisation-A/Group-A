@@ -5,16 +5,20 @@ import SearchBar from "../SearchBar/SearchBar";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import { sendPasswordResetEmail } from "firebase/auth";
-import auth from "../../utils/firebase";
+import { auth, firestore } from '../../utils/firebase.js';
+import { doc, getDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BuildingMap from "../../BuildingMap";
 
 const Profile = () => {
-  const [buses, setBuses] = useState([]);
   const [fullName, setFullName] = useState("John Doe"); // Default to "John Doe" for now
   const [email, setEmail] = useState("uhone1593@gmail.com"); // Existing email
+  const [UID, setUserId] = useState(null);
+  const [rental, setRental] = useState([]);
+  const [userData, setUserData] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false); // Toggle password reset form within the card
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     // Add class when component mounts
@@ -28,15 +32,32 @@ const Profile = () => {
 
   // Get data
   useEffect(() => {
-    // Fetch data from your API
-    axios
-      .get("https://campus-transport.azurewebsites.net/getSchedule")
-      .then((response) => {
-        setBuses(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, set the user ID
+        setUserId(user.uid);
+        console.log('User ID:', user.uid);
+        // Fetch user document to check if location exists
+        const userRef = doc(firestore, 'Users', user.uid);
+        getDoc(userRef).then((docSnap) => {
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            setUserData(userData); // Set user's location
+            setEmail(userData.email);
+            setFullName(`${userData.firstName} ${userData.lastName}`);
+            console.log('User Data:', userData); // Log the location for debugging
+          } else {
+            console.log('No such user document!');
+          }
+        }).catch((error) => {
+          console.error('Error fetching user document:', error);
+        });
+      } else{
+        setUserId(null);
+        setUserData(null); // Reset user location
+        console.log('No user is logged in');
+      }
+    });
   }, []);
 
   // Handle password reset
@@ -51,6 +72,17 @@ const Profile = () => {
       console.error(error.message);
       toast.error("Error sending password reset email. Please try again.");
     }
+  };
+
+  const handleCancel = () => {
+    setUserData(null);
+  };
+
+  const handleRentClick = () => {
+    setShowPopup(true);
+  };
+  const handleClosePopup = () => {
+    setShowPopup(false);
   };
 
   return (
@@ -96,10 +128,6 @@ const Profile = () => {
                 {/* Profile Stats */}
                 <div className="profile-stats">
                   <div className="stat-item">
-                    <h3>2</h3>
-                    <p>Rented vehicles</p>
-                  </div>
-                  <div className="stat-item">
                     <h3>40</h3>
                     <p>KuduBucks</p>
                   </div>
@@ -110,16 +138,25 @@ const Profile = () => {
                 </div>
                 <div className="divider"></div>
                 <div className="rent-history">
-                  <h4>Rent History</h4>
-                  <p className="rentinfo">
-                    24/09/2024 - Rented a bicycle(BikeID) at FNB
-                  </p>
-                  <p className="rentinfo">
-                    24/09/2024 - Rented a bicycle at FNB
-                  </p>
-                  <p className="rentinfo">
-                    24/09/2024 - Rented a bicycle at FNB
-                  </p>
+                  <h4>Current Rental</h4>
+                  <div className="bicycle-item">
+                    <h3>{userData ? userData.item : 'No current rental'}</h3>
+                    <p>Location: {userData ? userData.location : 'Unknown'}</p>
+                    {/* <button className="cancelBtn">
+                      Cancel Rental
+                      </button> */}
+                    {userData && (
+                      <a
+                        className="cancel-link"
+                        onClick={() => handleRentClick()}
+                      >
+                        Cancel Rental
+                      </a>
+                    )}
+
+                  </div>
+                  
+
                 </div>
               </>
             ) : (
@@ -143,6 +180,29 @@ const Profile = () => {
                 </form>
               </>
             )}
+
+            {showPopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <h4>Cancel Rental</h4>
+                <p>
+                  Are you sure you want to cancel this item? <br />
+                </p>
+                  <button 
+                  className="cancelBtn" 
+                  // onClick={handleClosePopup}
+                    // className="rentBtn" 
+                     onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                
+
+                <button className="closeBtn" onClick={handleClosePopup}>Close</button>
+              </div>
+            </div>
+          )}
+           
           </div>
         </div>
       </div>
