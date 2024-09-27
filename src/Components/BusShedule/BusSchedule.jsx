@@ -11,16 +11,6 @@ import axios from "axios";
 const Busschedule = () => {
   const [buses, setBuses] = useState([]);
 
-  useEffect(() => {
-    // Add class when component mounts
-    document.body.classList.add("hide-mapbox-controls");
-
-    // Remove class when component unmounts
-    return () => {
-      document.body.classList.remove("hide-mapbox-controls");
-    };
-  }, []);
-
   //Get data
   useEffect(() => {
     // Fetch data from your API
@@ -40,7 +30,6 @@ const Busschedule = () => {
         <div className="back">
           <BuildingMap />
         </div>
-
         <div className="front">
           <SideMenu />
           <div>

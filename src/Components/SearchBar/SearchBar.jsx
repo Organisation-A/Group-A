@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import "./SearchBar.css";
 import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
@@ -13,8 +13,6 @@ const SearchBar = () => {
     "Great Hall",
   ]); // Example recent searches
   const [showDropdown, setShowDropdown] = useState(false); // For controlling the dropdown visibility
-  const navigate = useNavigate();
-  const hide = document.querySelector(".mapboxgl-ctrl-top-left");
 
   const handleInputChange = (event) => {
     setQuery(event.target.value);
@@ -34,7 +32,7 @@ const SearchBar = () => {
     }
 
     setShowDropdown(false); // Close the dropdown after searching
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
@@ -42,7 +40,7 @@ const SearchBar = () => {
 
   const handleFocus = () => {
     setShowDropdown(true); // Show the dropdown when focused
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "none";
     }
@@ -51,7 +49,7 @@ const SearchBar = () => {
   const handleSearchSelect = (searchTerm) => {
     setQuery(searchTerm);
     setShowDropdown(false); // Hide the dropdown after selecting a search
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
@@ -60,7 +58,7 @@ const SearchBar = () => {
   const handleBlur = () => {
     setShowDropdown(false);
     //setTimeout(() => setShowDropdown(false), 100); // Delay to allow click event
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
