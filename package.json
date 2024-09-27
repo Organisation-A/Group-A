@@ -23,9 +23,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "client": "react-scripts start",
-    "server": "cd api && func start",
-    "start": "concurrently \"npm run client\" \"npm run server\"",
+    "start": "react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "echo \"No tests specified\"",
     "eject": "react-scripts eject"
