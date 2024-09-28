@@ -6,6 +6,7 @@ import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import BuildingMap from "../../BuildingMap.jsx";
+// import API_BASE_URL from '../../url_config';
 import axios from 'axios';
 
 
@@ -66,9 +67,8 @@ const Rentals = () => {
 
   // Get data
   useEffect(() => {
-    // Fetch data from your API http://localhost:5000/getRent
-    axios
-      .get('https://campus-transport.azurewebsites.net/api/getRent')
+    // Fetch data from your API https://api-campus-transport-ebon.vercel.app/getRent
+    axios.get(`https://api-campus-transport.vercel.app/getRent`)
       .then((response) => {
         setRental(response.data);
       })
@@ -84,10 +84,7 @@ const Rentals = () => {
     // console.log('Location:', rent); // Check user ID
 
     axios
-      .post(`https://campus-transport.azurewebsites.net/api/rent/${UID}/${ritem}/${rent}`, {
-        item: ritem,
-        location: rent
-      })
+      .post(`https://api-campus-transport.vercel.app/rent/${UID}/${ritem}/${rent}`)
       .then((response) => {
         console.log('Rental successful:', response.data);
         handleHOME();
