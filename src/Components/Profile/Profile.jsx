@@ -13,7 +13,8 @@ import BuildingMap from "../../BuildingMap";
 
 const Profile = () => {
   const [fullName, setFullName] = useState("John Doe"); // Default to "John Doe" for now
-  const [email, setEmail] = useState("uhone1593@gmail.com"); // Existing email
+  const [email, setEmail] = useState("John@gmail.com"); // Existing email
+  const [kudu, setKudu]=useState("")
   const [UID, setUserId] = useState(null);
   const [rental, setRental] = useState([]);
   const [userData, setUserData] = useState(null);
@@ -44,6 +45,7 @@ const Profile = () => {
             const userData = docSnap.data();
             setUserData(userData); // Set user's location
             setEmail(userData.email);
+            setKudu(userData.kudu)
             setFullName(`${userData.firstName} ${userData.lastName}`);
             console.log('User Data:', userData); // Log the location for debugging
           } else {
@@ -85,6 +87,16 @@ const Profile = () => {
     setShowPopup(false);
   };
 
+  const getKuduColor = (kudu) => {
+    if (kudu >= 70) {
+      return 'green';
+    } else if (kudu >= 20) {
+      return `rgb(${255 - (kudu - 20) * 2}, 255, 0)`; // Gradually decrease red component
+    } else {
+      return `rgb(255, ${(kudu / 20) * 255}, 0)`; 
+    }
+  };
+
   return (
     <div className="Profile-container map-back">
       <div className="back">
@@ -112,23 +124,10 @@ const Profile = () => {
                     Change password
                   </a>
                 </div>
-                <div className="progress-container">
-                  <div className="progress-bar">
-                    <div className="progress" style={{ width: "60%" }}></div>
-                  </div>
-                  <span>
-                    <p className="credits">40/60 KuduBucks</p>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {!showForgotPassword ? (
-              <>
-                {/* Profile Stats */}
+                 {/* Profile Stats */}
                 <div className="profile-stats">
                   <div className="stat-item">
-                    <h3>40</h3>
+                    <h3 style={{ color: getKuduColor(kudu) }}>{kudu}</h3>
                     <p>KuduBucks</p>
                   </div>
                   <div className="stat-item">
@@ -136,6 +135,22 @@ const Profile = () => {
                     <p>Vehicles Available</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {!showForgotPassword ? (
+              <>
+                {/* Profile Stats
+                <div className="profile-stats">
+                  <div className="stat-item">
+                    <h3>{kudu}</h3>
+                    <p>KuduBucks</p>
+                  </div>
+                  <div className="stat-item">
+                    <h3>23</h3>
+                    <p>Vehicles Available</p>
+                  </div>
+                </div> */}
                 <div className="divider"></div>
                 <div className="rent-history">
                   <h4>Current Rental</h4>
