@@ -125,6 +125,7 @@ code {
 
 .Bus-container .hidden,
 .Profile-container .hidden,
-.rentals-container .hidden {
+.rentals-container .hidden,
+.Logout-container .hidden {
   display: none !important;
 }

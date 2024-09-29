@@ -11,114 +11,183 @@ const BuildingMap = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [directionsService, setDirectionsService] = useState(null);
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
-  const [directions, setDirections] = useState(null);
+  const [directions, setDirections] = useState(() => {
+    const savedDirections = localStorage.getItem("directions");
+    return savedDirections ? JSON.parse(savedDirections) : null;
+  });
   const [selectedMode, setSelectedMode] = useState("WALKING");
   const [originMarker, setOriginMarker] = useState(null);
   const [destinationMarker, setDestinationMarker] = useState(null);
   const [watchId, setWatchId] = useState(null);
-  const [isDarkStyle, setIsDarkStyle] = useState(true);
+
+  // Initialize isDarkStyle with value from localStorage
+  const [isDarkStyle, setIsDarkStyle] = useState(() => {
+    const savedStyle = localStorage.getItem("isDarkStyle");
+    return savedStyle ? JSON.parse(savedStyle) : true; // Default to dark style
+  });
+
+  const mapInstanceRef = useRef(null);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "AIzaSyBLFjakyXEMfq18y0BSZGa7qcNx8xkNAz4",
+      apiKey: "API KEY HERE",
       version: "weekly",
       libraries: ["places"],
     });
+    loader
+      .load()
+      .then((google) => {
+        setGoogleMaps(google);
+        setDirectionsService(new google.maps.DirectionsService());
+        const renderer = new google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+        });
+        setDirectionsRenderer(renderer);
 
-    loader.load().then((google) => {
-      setGoogleMaps(google);
-      setDirectionsService(new google.maps.DirectionsService());
-      setDirectionsRenderer(
-        new google.maps.DirectionsRenderer({ suppressMarkers: true })
-      );
-
-      if (navigator.geolocation) {
-        const id = navigator.geolocation.watchPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          () => {
-            console.log("Error: The Geolocation service failed.");
-            setUserLocation({ lat: fallbackLatitude, lng: fallbackLongitude });
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
-          }
-        );
-        setWatchId(id);
-      } else {
-        console.log("Error: Your browser doesn't support geolocation.");
-        setUserLocation({ lat: fallbackLatitude, lng: fallbackLongitude });
-      }
-    });
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setUserLocation({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+              const id = navigator.geolocation.watchPosition(
+                (pos) => {
+                  setUserLocation({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                  });
+                },
+                (error) => {
+                  console.error("Error watching position:", error);
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+              );
+              setWatchId(id);
+            },
+            (error) => {
+              console.error("Error getting initial position:", error);
+              setUserLocation({
+                lat: fallbackLatitude,
+                lng: fallbackLongitude,
+              });
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        } else {
+          console.log("Error: Your browser doesn't support geolocation.");
+          setUserLocation({ lat: fallbackLatitude, lng: fallbackLongitude });
+        }
+      })
+      .catch((error) => console.error("Error loading Google Maps:", error));
 
     return () => {
       if (watchId !== null) {
         navigator.geolocation.clearWatch(watchId);
       }
     };
-  }, [watchId]);
+  }, []);
 
   useEffect(() => {
     if (googleMaps && mapRef.current && userLocation) {
-      const map = new googleMaps.maps.Map(mapRef.current, {
-        center: userLocation,
-        zoom: 17,
-        fullscreenControl: false,
-        mapTypeControl: false,
-        zoomControl: true,
-        streetViewControl: true,
-        styles: isDarkStyle ? MapStyle : [], // Apply dark style conditionally
-      });
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = new googleMaps.maps.Map(mapRef.current, {
+          center: userLocation,
+          zoom: 17,
+          fullscreenControl: false,
+          mapTypeControl: false,
+          zoomControl: true,
+          streetViewControl: true,
+          styles: isDarkStyle ? MapStyle : [],
+        });
+        directionsRenderer.setMap(mapInstanceRef.current);
+        new googleMaps.maps.Marker({
+          position: userLocation,
+          map: mapInstanceRef.current,
+          icon: {
+            path: googleMaps.maps.SymbolPath.CIRCLE,
+            scale: 7,
+            fillColor: "#4285F4",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+          },
+        });
 
-      directionsRenderer.setMap(map);
+        window.addEventListener("resize", () =>
+          mapInstanceRef.current.setCenter(userLocation)
+        );
 
-      const userMarker = new googleMaps.maps.Marker({
-        position: userLocation,
-        map: map,
-        icon: {
-          path: googleMaps.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: "#4285F4",
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-        },
-      });
+        mapInstanceRef.current.addListener("click", (e) => {
+          calculateAndDisplayRoute(e.latLng);
+        });
 
-      const resizeMap = () => {
-        map.setCenter(userLocation);
-      };
-
-      window.addEventListener("resize", resizeMap);
-
-      map.addListener("click", (e) => {
-        calculateAndDisplayRoute(e.latLng);
-      });
-
-      return () => {
-        window.removeEventListener("resize", resizeMap);
-        userMarker.setMap(null);
-      };
+        loadPersistedRoute();
+      } else {
+        mapInstanceRef.current.setOptions({
+          center: userLocation,
+          styles: isDarkStyle ? MapStyle : [],
+        });
+      }
     }
   }, [googleMaps, userLocation, isDarkStyle]);
 
-  useEffect(() => {
-    if (originMarker && userLocation) {
-      originMarker.setPosition(userLocation);
-      if (destinationMarker) {
-        calculateRoute(
-          new googleMaps.maps.LatLng(userLocation.lat, userLocation.lng),
-          destinationMarker.getPosition()
-        );
-      }
+  const loadPersistedRoute = () => {
+    const savedRoute = localStorage.getItem("route");
+    if (savedRoute) {
+      const { origin, destination } = JSON.parse(savedRoute);
+      const originLatLng = new googleMaps.maps.LatLng(origin.lat, origin.lng);
+      const destinationLatLng = new googleMaps.maps.LatLng(
+        destination.lat,
+        destination.lng
+      );
+      createMarkersAndCalculateRoute(originLatLng, destinationLatLng);
     }
-  }, [userLocation]);
+  };
+
+  const createMarkersAndCalculateRoute = (originLatLng, destinationLatLng) => {
+    if (originMarker) originMarker.setMap(null); // Remove previous origin marker
+    if (destinationMarker) destinationMarker.setMap(null); // Remove previous destination marker
+
+    const newOriginMarker = new googleMaps.maps.Marker({
+      position: originLatLng,
+      map: directionsRenderer.getMap(),
+      draggable: true,
+    });
+
+    const newDestinationMarker = new googleMaps.maps.Marker({
+      position: destinationLatLng,
+      map: directionsRenderer.getMap(),
+      draggable: true,
+    });
+
+    setOriginMarker(newOriginMarker);
+    setDestinationMarker(newDestinationMarker);
+
+    localStorage.setItem(
+      "route",
+      JSON.stringify({
+        origin: originLatLng.toJSON(),
+        destination: destinationLatLng.toJSON(),
+      })
+    );
+
+    newOriginMarker.addListener("dragend", () => {
+      calculateRoute(
+        newOriginMarker.getPosition(),
+        newDestinationMarker.getPosition()
+      );
+    });
+
+    newDestinationMarker.addListener("dragend", () => {
+      calculateRoute(
+        newOriginMarker.getPosition(),
+        newDestinationMarker.getPosition()
+      );
+    });
+
+    calculateRoute(originLatLng, destinationLatLng);
+  };
 
   const calculateAndDisplayRoute = (destination) => {
     if (!userLocation || !googleMaps) {
@@ -128,44 +197,11 @@ const BuildingMap = () => {
       return;
     }
 
-    const origin = new googleMaps.maps.LatLng(
+    const originLatLng = new googleMaps.maps.LatLng(
       userLocation.lat,
       userLocation.lng
     );
-    const dest = new googleMaps.maps.LatLng(
-      destination.lat(),
-      destination.lng()
-    );
-
-    if (originMarker) originMarker.setMap(null);
-    if (destinationMarker) destinationMarker.setMap(null);
-
-    const newOriginMarker = new googleMaps.maps.Marker({
-      position: origin,
-      map: directionsRenderer.getMap(),
-      draggable: true,
-    });
-
-    const newDestinationMarker = new googleMaps.maps.Marker({
-      position: dest,
-      map: directionsRenderer.getMap(),
-      draggable: true,
-    });
-
-    setOriginMarker(newOriginMarker);
-    setDestinationMarker(newDestinationMarker);
-
-    newOriginMarker.addListener("dragend", () => {
-      const newOrigin = newOriginMarker.getPosition();
-      calculateRoute(newOrigin, newDestinationMarker.getPosition());
-    });
-
-    newDestinationMarker.addListener("dragend", () => {
-      const newDest = newDestinationMarker.getPosition();
-      calculateRoute(newOriginMarker.getPosition(), newDest);
-    });
-
-    calculateRoute(origin, dest);
+    createMarkersAndCalculateRoute(originLatLng, destination);
   };
 
   const calculateRoute = (origin, destination) => {
@@ -178,17 +214,27 @@ const BuildingMap = () => {
       (response, status) => {
         if (status === "OK") {
           directionsRenderer.setDirections(response);
-          setDirections(response.routes[0].legs[0]);
+          const routeDetails = response.routes[0].legs[0];
+          setDirections(routeDetails);
 
-          // Update marker positions using the current markers
+          localStorage.setItem("directions", JSON.stringify(routeDetails));
+
           if (originMarker) {
-            originMarker.setPosition(response.routes[0].legs[0].start_location);
+            originMarker.setPosition(routeDetails.start_location);
           }
+
           if (destinationMarker) {
-            destinationMarker.setPosition(
-              response.routes[0].legs[0].end_location
-            );
+            destinationMarker.setPosition(routeDetails.end_location);
           }
+
+          // Persist updated route
+          localStorage.setItem(
+            "route",
+            JSON.stringify({
+              origin: routeDetails.start_location.toJSON(),
+              destination: routeDetails.end_location.toJSON(),
+            })
+          );
         } else {
           console.log("Directions request failed due to " + status);
         }
@@ -196,8 +242,12 @@ const BuildingMap = () => {
     );
   };
 
+  // Toggle function that also updates localStorage
   const toggleMapStyle = () => {
-    setIsDarkStyle(!isDarkStyle);
+    setIsDarkStyle((prevIsDarkStyle) => !prevIsDarkStyle);
+
+    // Save the current style preference in localStorage
+    localStorage.setItem("isDarkStyle", JSON.stringify(!isDarkStyle));
   };
 
   return (

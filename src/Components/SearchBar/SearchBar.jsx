@@ -15,7 +15,7 @@ const SearchBar = () => {
   const [showDropdown, setShowDropdown] = useState(false); // For controlling the dropdown visibility
   const [descriptionData, setDescriptionData] = useState(null); // State for displaying search result
   const navigate = useNavigate();
-  const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+  const hide = document.querySelector(".turn-by-turn");
 
   const searchDescriptions = {
     MSL: {
@@ -74,7 +74,7 @@ const SearchBar = () => {
     );
 
     setShowDropdown(false); // Close the dropdown after searching
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
@@ -82,7 +82,7 @@ const SearchBar = () => {
 
   const handleFocus = () => {
     setShowDropdown(true); // Show the dropdown when focused
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "none";
     }
@@ -91,7 +91,7 @@ const SearchBar = () => {
   const handleSearchSelect = (searchTerm) => {
     setQuery(searchTerm);
     setShowDropdown(false); // Hide the dropdown after selecting a search
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
@@ -106,7 +106,7 @@ const SearchBar = () => {
   const handleBlur = () => {
     setShowDropdown(false);
     //setTimeout(() => setShowDropdown(false), 100); // Delay to allow click event
-    const hide = document.querySelector(".mapboxgl-ctrl-top-left");
+    const hide = document.querySelector(".turn-by-turn");
     if (hide) {
       hide.style.display = "block";
     }
