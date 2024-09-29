@@ -117,10 +117,15 @@ code {
 .bus-schedule-container,
 .profile-card,
 .lab-container,
+.recent-searches-dropdown,
+.recent-search-item,
 #directions {
   pointer-events: auto;
 }
 
-.hide-mapbox-controls .mapboxgl-control-container {
+.Bus-container .hidden,
+.Profile-container .hidden,
+.rentals-container .hidden,
+.Logout-container .hidden {
   display: none !important;
 }

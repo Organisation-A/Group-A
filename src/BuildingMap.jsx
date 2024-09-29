@@ -1,270 +1,339 @@
-import React, { useRef, useEffect } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
-import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
+import React, { useEffect, useRef, useState } from "react";
+import { Loader } from "@googlemaps/js-api-loader";
+import { MapStyle } from "./MapStyle";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiZ3JvdXAtYSIsImEiOiJjbTBmYzY0OWYwOG42MnFzNDZocHY4dnh2In0.WI3g6Wlw3JlQ_RnbmqcDzg";
-// mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_PUBLIC_TOKEN;
-var MapLatitude = 26 + 11 / 60 + 20 / 3600;
-MapLatitude *= -1; // South
-var MapLongitude = 28 + 1 / 60 + 39 / 3600;
-
-var MapDestLatitude = 26 + 11 / 60 + 40 / 3600;
-MapDestLatitude *= -1; // South
-var MapDestLongitude = 28 + 1 / 60 + 20 / 3600;
-
-const Buildings = [
-  {
-    name: "TW Kambule. Mathematical Science Building",
-    latitude: -26.19,
-    longitude: 28.0263888,
-  },
-];
-
-function PlaceClick(map, directions, e) {
-  const coordinates = e.features[0].geometry.coordinates.slice();
-  const title = e.features[0].properties.title;
-
-  // You can also center the map on the clicked text, if desired
-  map.flyTo({ center: coordinates });
-  directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
-  directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
-
-  const popupContent = `
-    <h3>${title}</h3>
-    <p>Building Information:</p>
-    <p>This is the Mathematical Sciences Building. It hosts various research and academic departments.</p>
-  `;
-
-  // Create the popup and set its content
-  new mapboxgl.Popup()
-    .setLngLat(coordinates) // Position at the clicked coordinates
-    .setHTML(popupContent) // Set the custom HTML content
-    .addTo(map);
-}
+const fallbackLatitude = -26.1893;
+const fallbackLongitude = 28.0271;
 
 const BuildingMap = () => {
-  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const [googleMaps, setGoogleMaps] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [directionsService, setDirectionsService] = useState(null);
+  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+  const [directions, setDirections] = useState(() => {
+    const savedDirections = localStorage.getItem("directions");
+    return savedDirections ? JSON.parse(savedDirections) : null;
+  });
+  const [selectedMode, setSelectedMode] = useState("WALKING");
+  const [originMarker, setOriginMarker] = useState(null);
+  const [destinationMarker, setDestinationMarker] = useState(null);
+  const [watchId, setWatchId] = useState(null);
+
+  // Initialize isDarkStyle with value from localStorage
+  const [isDarkStyle, setIsDarkStyle] = useState(() => {
+    const savedStyle = localStorage.getItem("isDarkStyle");
+    return savedStyle ? JSON.parse(savedStyle) : true; // Default to dark style
+  });
+
+  const mapInstanceRef = useRef(null);
 
   useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: "mapbox://styles/mapbox/navigation-night-v1",
-      center: [MapLongitude, MapLatitude], // Example starting position [lng, lat]
-      zoom: 15,
+    const loader = new Loader({
+      apiKey: "API Key Here",
+      version: "weekly",
+      libraries: ["places"],
     });
+    loader
+      .load()
+      .then((google) => {
+        setGoogleMaps(google);
+        setDirectionsService(new google.maps.DirectionsService());
+        const renderer = new google.maps.DirectionsRenderer({
+          suppressMarkers: true,
+        });
+        setDirectionsRenderer(renderer);
 
-    // const marker = new mapboxgl.Marker({ color: "black" })
-    //   .setLngLat([MapLongitude, MapLatitude])
-    //   .addTo(map);
-
-    map.on("load", () => {
-      map.addSource("route", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.0275496235991, -26.191719275369223],
-                  [28.02747007853489, -26.191539827653727],
-                  [28.02743523365001, -26.19127569614509],
-                  [28.027381042422178, -26.190896506988956],
-                ],
-                type: "LineString",
-              },
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setUserLocation({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+              const id = navigator.geolocation.watchPosition(
+                (pos) => {
+                  setUserLocation({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                  });
+                },
+                (error) => {
+                  console.error("Error watching position:", error);
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+              );
+              setWatchId(id);
             },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.02654364409605, -26.191108133066066],
-                  [28.02640328890581, -26.190556208790973],
-                  [28.026275460481656, -26.18991551651743],
-                  [28.02607141043393, -26.189906502184492],
-                  [28.026039349645885, -26.189595221799458],
-                  [28.027132326991165, -26.189470322200677],
-                ],
-                type: "LineString",
-              },
+            (error) => {
+              console.error("Error getting initial position:", error);
+              setUserLocation({
+                lat: fallbackLatitude,
+                lng: fallbackLongitude,
+              });
             },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.027050567549793, -26.188956510851526],
-                  [28.025878989901543, -26.18906331259837],
-                  [28.02487708444201, -26.18923853758075],
-                  [28.024924705040036, -26.189578312148782],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.02575511000802, -26.18814538906875],
-                  [28.025864962648086, -26.188782278908292],
-                  [28.025901469672334, -26.189056231696256],
-                  [28.025925572247985, -26.189615921816973],
-                  [28.026037923743303, -26.189595926953743],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.024872388441793, -26.18923142609126],
-                  [28.024735892340573, -26.188384860028393],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.026392718765493, -26.190543241294442],
-                  [28.02559430985133, -26.190618836962116],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.030632027115104, -26.19148783987091],
-                  [28.03046459897726, -26.18999271818867],
-                  [28.0304206507208, -26.189592709270705],
-                  [28.030298528339472, -26.189330734251655],
-                ],
-                type: "LineString",
-              },
-            },
-            {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                coordinates: [
-                  [28.030553708489464, -26.190790430970544],
-                  [28.02980387206955, -26.19086205838824],
-                  [28.029464584336324, -26.190876518322327],
-                  [28.029000522632856, -26.19100326027082],
-                ],
-                type: "LineString",
-              },
-            },
-          ],
-        },
-      });
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        } else {
+          console.log("Error: Your browser doesn't support geolocation.");
+          setUserLocation({ lat: fallbackLatitude, lng: fallbackLongitude });
+        }
+      })
+      .catch((error) => console.error("Error loading Google Maps:", error));
 
-      //Add a layer to display the path (line)
-      map.addLayer({
-        id: "route",
-        type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#2c3035", // Line color
-          "line-width": 3, // Line width
-        },
-      });
-    });
-
-    const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      unit: "metric", // or 'imperial'
-      profile: "mapbox/walking", // or 'mapbox/driving, 'mapbox/cycling'
-    });
-
-    // Add the Directions control to the map
-    map.addControl(directions, "top-left");
-
-    // Optionally set initial route
-    directions.setOrigin([MapLongitude, MapLatitude]); // Origin coordinates
-    directions.setDestination([MapDestLongitude, MapDestLatitude]); // Destination coordinates
-
-    const topLeftControls = document.querySelector(".mapboxgl-ctrl-top-left");
-    topLeftControls.style.top = "100px";
-    topLeftControls.style.left = "30px";
-    topLeftControls.id = "directions";
-
-    // Add the GeoJSON source for the text points
-    map.on("load", () => {
-      // Prepare an array of features from the points array
-      const features = Buildings.map((building) => ({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [building.longitude, building.latitude],
-        },
-        properties: {
-          title: building.name,
-        },
-      }));
-
-      map.addSource("points", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: features, // Add generated features to the GeoJSON
-        },
-      });
-
-      // Add a layer to display the text
-      map.addLayer({
-        id: "text-layer",
-        type: "symbol",
-        source: "points",
-        layout: {
-          "text-field": ["get", "title"], // Display the 'title' property as text
-          "text-size": 16,
-          "text-offset": [0, 0.6], // Offset text above the point
-          "text-anchor": "top",
-        },
-        paint: {
-          "text-color": "#fff", // Text color
-        },
-      });
-
-      map.on("click", "text-layer", (e) => {
-        PlaceClick(map, directions, e);
-      });
-
-      // Change the cursor to a pointer when hovering over the text
-      map.on("mouseenter", "text-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-
-      // Reset the cursor when it leaves the text
-      map.on("mouseleave", "text-layer", () => {
-        map.getCanvas().style.cursor = "";
-      });
-    });
-
-    return () => map.remove();
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
   }, []);
 
+  useEffect(() => {
+    if (googleMaps && mapRef.current && userLocation) {
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = new googleMaps.maps.Map(mapRef.current, {
+          center: userLocation,
+          zoom: 17,
+          fullscreenControl: false,
+          mapTypeControl: false,
+          zoomControl: true,
+          streetViewControl: true,
+          styles: isDarkStyle ? MapStyle : [],
+        });
+        directionsRenderer.setMap(mapInstanceRef.current);
+        new googleMaps.maps.Marker({
+          position: userLocation,
+          map: mapInstanceRef.current,
+          icon: {
+            path: googleMaps.maps.SymbolPath.CIRCLE,
+            scale: 7,
+            fillColor: "#4285F4",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+          },
+        });
+
+        window.addEventListener("resize", () =>
+          mapInstanceRef.current.setCenter(userLocation)
+        );
+
+        mapInstanceRef.current.addListener("click", (e) => {
+          calculateAndDisplayRoute(e.latLng);
+        });
+
+        loadPersistedRoute();
+      } else {
+        mapInstanceRef.current.setOptions({
+          center: userLocation,
+          styles: isDarkStyle ? MapStyle : [],
+        });
+      }
+    }
+  }, [googleMaps, userLocation, isDarkStyle]);
+
+  const loadPersistedRoute = () => {
+    const savedRoute = localStorage.getItem("route");
+    if (savedRoute) {
+      const { origin, destination } = JSON.parse(savedRoute);
+      const originLatLng = new googleMaps.maps.LatLng(origin.lat, origin.lng);
+      const destinationLatLng = new googleMaps.maps.LatLng(
+        destination.lat,
+        destination.lng
+      );
+      createMarkersAndCalculateRoute(originLatLng, destinationLatLng);
+    }
+  };
+
+  const createMarkersAndCalculateRoute = (originLatLng, destinationLatLng) => {
+    if (originMarker) originMarker.setMap(null); // Remove previous origin marker
+    if (destinationMarker) destinationMarker.setMap(null); // Remove previous destination marker
+
+    const newOriginMarker = new googleMaps.maps.Marker({
+      position: originLatLng,
+      map: directionsRenderer.getMap(),
+      draggable: true,
+    });
+
+    const newDestinationMarker = new googleMaps.maps.Marker({
+      position: destinationLatLng,
+      map: directionsRenderer.getMap(),
+      draggable: true,
+    });
+
+    setOriginMarker(newOriginMarker);
+    setDestinationMarker(newDestinationMarker);
+
+    localStorage.setItem(
+      "route",
+      JSON.stringify({
+        origin: originLatLng.toJSON(),
+        destination: destinationLatLng.toJSON(),
+      })
+    );
+
+    newOriginMarker.addListener("dragend", () => {
+      calculateRoute(
+        newOriginMarker.getPosition(),
+        newDestinationMarker.getPosition()
+      );
+    });
+
+    newDestinationMarker.addListener("dragend", () => {
+      calculateRoute(
+        newOriginMarker.getPosition(),
+        newDestinationMarker.getPosition()
+      );
+    });
+
+    calculateRoute(originLatLng, destinationLatLng);
+  };
+
+  const calculateAndDisplayRoute = (destination) => {
+    if (!userLocation || !googleMaps) {
+      alert(
+        "Unable to access your location or Google Maps is not loaded. Please try again."
+      );
+      return;
+    }
+
+    const originLatLng = new googleMaps.maps.LatLng(
+      userLocation.lat,
+      userLocation.lng
+    );
+    createMarkersAndCalculateRoute(originLatLng, destination);
+  };
+
+  const calculateRoute = (origin, destination) => {
+    directionsService.route(
+      {
+        origin: origin,
+        destination: destination,
+        travelMode: googleMaps.maps.TravelMode[selectedMode],
+      },
+      (response, status) => {
+        if (status === "OK") {
+          directionsRenderer.setDirections(response);
+          const routeDetails = response.routes[0].legs[0];
+          setDirections(routeDetails);
+
+          localStorage.setItem("directions", JSON.stringify(routeDetails));
+
+          if (originMarker) {
+            originMarker.setPosition(routeDetails.start_location);
+          }
+
+          if (destinationMarker) {
+            destinationMarker.setPosition(routeDetails.end_location);
+          }
+
+          // Persist updated route
+          localStorage.setItem(
+            "route",
+            JSON.stringify({
+              origin: routeDetails.start_location.toJSON(),
+              destination: routeDetails.end_location.toJSON(),
+            })
+          );
+        } else {
+          console.log("Directions request failed due to " + status);
+        }
+      }
+    );
+  };
+
+  // Toggle function that also updates localStorage
+  const toggleMapStyle = () => {
+    setIsDarkStyle((prevIsDarkStyle) => !prevIsDarkStyle);
+
+    // Save the current style preference in localStorage
+    localStorage.setItem("isDarkStyle", JSON.stringify(!isDarkStyle));
+  };
+
   return (
-    <div ref={mapContainerRef} style={{ width: "100%", height: "100vh" }} />
+    <div style={{ position: "relative", width: "100%", height: "100vh" }}>
+      <div
+        ref={mapRef}
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+      />
+      {directions && (
+        <div
+          className="turn-by-turn hidden"
+          style={{
+            position: "absolute",
+            top: "90px",
+            left: "30px",
+            zIndex: 1000,
+            background: "white",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            maxHeight: "calc(100vh - 120px)",
+            overflowY: "auto",
+            minWidth: "300px",
+            maxWidth: "400px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <h3 style={{ margin: 0 }}>Directions:</h3>
+            <select
+              value={selectedMode}
+              onChange={(e) => {
+                setSelectedMode(e.target.value);
+                if (directions && originMarker && destinationMarker) {
+                  calculateRoute(
+                    originMarker.getPosition(),
+                    destinationMarker.getPosition()
+                  );
+                }
+              }}
+              style={{ padding: "5px" }}
+            >
+              <option value="DRIVING">Driving</option>
+              <option value="WALKING">Walking</option>
+              <option value="BICYCLING">Bicycling</option>
+              <option value="TRANSIT">Transit</option>
+            </select>
+          </div>
+          <button
+            onClick={toggleMapStyle}
+            style={{
+              width: "100%",
+              padding: "10px",
+              marginBottom: "10px",
+              backgroundColor: isDarkStyle ? "#aab9c9" : "#1d2c4d",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            {isDarkStyle ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          </button>
+          <p>Distance: {directions.distance.text}</p>
+          <p>Duration: {directions.duration.text}</p>
+          <ol style={{ paddingLeft: "30px" }}>
+            {directions.steps.map((step, index) => (
+              <li
+                key={index}
+                dangerouslySetInnerHTML={{ __html: step.instructions }}
+                style={{ marginBottom: "10px" }}
+              ></li>
+            ))}
+          </ol>
+        </div>
+      )}
+    </div>
   );
 };
 
