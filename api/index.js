@@ -62,7 +62,7 @@ app.get('/getRent', async (req, res) => {
 // API route to fetch data from Firestore about main locations
 app.get('/getLocations', async (req, res) => {
   try {
-    const snapshot = await db.collection('Main Locations').get();
+    const snapshot = await db.collection('Buildings').get();
 
     let data = [];
     snapshot.forEach((doc) => {
