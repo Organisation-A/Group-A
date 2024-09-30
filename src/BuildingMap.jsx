@@ -22,7 +22,7 @@ const BuildingMap = () => {
 
   // Initialize isDarkStyle with value from localStorage
   const [isDarkStyle, setIsDarkStyle] = useState(() => {
-    const savedStyle = localStorage.gestItem("isDarkStyle");
+    const savedStyle = localStorage.getItem("isDarkStyle");
     return savedStyle ? JSON.parse(savedStyle) : true; // Default to dark style
   });
 
@@ -30,7 +30,7 @@ const BuildingMap = () => {
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "AIzaSyCcnTZtoi3rJFmg07rgC28QM5cdyKV8hTo",
       version: "weekly",
       libraries: ["places"],
     });
