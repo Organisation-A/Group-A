@@ -10,10 +10,11 @@
 }
 
 .search-icon {
-  margin-left: 15px;
+  margin-left: 10px;
   margin-right: 20px;
   font-size: 18px;
   color: #888;
+  background-color: white;
 }
 
 .search-input {
@@ -90,11 +91,12 @@
   height: 600px;
   padding-left: 80px;
 }
-
 .search-icon-button{
   border: white;
-  width: 20px;
+  background-color: white;
+  width: 25px;
   margin-right: 25px;
+  cursor: pointer;
 }
 
 .search-description-image {
