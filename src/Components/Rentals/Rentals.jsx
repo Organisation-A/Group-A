@@ -6,7 +6,7 @@ import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc, updateDoc} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import BuildingMap from "../../BuildingMap.jsx";
+import BuildingMap from "../Map/BuildingMap.jsx";
 
 
 const Rentals = () => {

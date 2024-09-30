@@ -2,10 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import "./BusSchedule.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
-import BuildingMap from "../../BuildingMap";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import BuildingMap from "../Map/BuildingMap.jsx";
 
 const Busschedule = () => {
   const [buses, setBuses] = useState([]);
