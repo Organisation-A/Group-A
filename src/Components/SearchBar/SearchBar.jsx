@@ -70,6 +70,13 @@ const SearchBar = () => {
       setRecentSearches([query, ...recentSearches]);
     }
 
+    setDescriptionData(
+      searchDescriptions[query] || {
+        text: "No description available for this search.",
+        image: null,
+      }
+    );
+
     setShowDropdown(false); // Close the dropdown after searching
     const hide = document.querySelector(".turn-by-turn");
     if (hide) {

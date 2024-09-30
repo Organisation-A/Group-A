@@ -10,7 +10,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import BuildingMap from "../../BuildingMap";
+import BuildingMap from "../Map/BuildingMap";
 
 const Profile = () => {
   const navigate = useNavigate();
