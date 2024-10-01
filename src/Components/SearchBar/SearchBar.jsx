@@ -11,11 +11,10 @@ const SearchBar = () => {
     "The Matrix",
     "Solomon Mahlangu",
     "Great Hall",
-  ]); // Example recent searches
+  ]);
   const [showDropdown, setShowDropdown] = useState(false); // For controlling the dropdown visibility
   const [descriptionData, setDescriptionData] = useState(false); // State for displaying search result
   const navigate = useNavigate();
-  const hide = document.querySelector(".turn-by-turn");
 
   const searchDescriptions = {
     MSL: {
@@ -100,21 +99,13 @@ const SearchBar = () => {
     );
   };
 
-  const handleBlur = () => {
-    setShowDropdown(false);
-    const hide = document.querySelector(".turn-by-turn");
-    if (hide) {
-      hide.style.display = "block";
-    }
-  };
-
   // Filter recent searches based on the query (case-insensitive)
   const filteredSearches = recentSearches.filter((search) =>
     search.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
-    <div className="search-bar-container" onBlur={handleBlur}>
+    <div className="search-bar-container">
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
@@ -140,6 +131,7 @@ const SearchBar = () => {
                 key={index}
                 className="recent-search-item"
                 onClick={() => handleSearchSelect(search)}
+                tabIndex={0} // Make the items focusable for accessibility
               >
                 {search}
               </li>
