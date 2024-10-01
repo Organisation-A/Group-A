@@ -20,7 +20,7 @@ const Profile = () => {
 
   const [fullName, setFullName] = useState("John Doe"); // Default to "John Doe" for now
   const [email, setEmail] = useState("John@gmail.com"); // Existing email
-  const [kudu, setKudu]=useState("")
+  const [kudu, setKudu]=useState(0)
   const [UID, setUserId] = useState(null);
   const [rental, setRental] = useState([]);
   const [userData, setUserData] = useState(null);
@@ -43,7 +43,7 @@ const Profile = () => {
       if (user) {
         // User is signed in, set the user ID
         setUserId(user.uid);
-        console.log('User ID:', user.uid);
+        // console.log('User ID:', user.uid);
         // Fetch user document to check if location exists
         const userRef = doc(firestore, 'Users', user.uid);
         getDoc(userRef).then((docSnap) => {
@@ -53,22 +53,22 @@ const Profile = () => {
             setEmail(userData.email);
             setKudu(userData.kudu)
             setFullName(`${userData.firstName} ${userData.lastName}`);
-            console.log('User Data:', userData); // Log the location for debugging
-          } else {
-            console.log('No such user document!');
-          }
+            
+          } 
         }).catch((error) => {
-          console.error('Error fetching user document:', error);
         });
       } else{
         setUserId(null);
         setUserData(null); // Reset user location
-        console.log('No user is logged in');
       }
     });
 
     // Clean up subscription on unmount
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Handle password reset
@@ -80,7 +80,6 @@ const Profile = () => {
       toast.success("Password reset email sent! Check your inbox.");
       setShowForgotPassword(false); // Close the form after sending the email
     } catch (error) {
-      console.error(error.message);
       toast.error("Error sending password reset email. Please try again.");
     }
   };
@@ -107,10 +106,10 @@ const Profile = () => {
           kudu: newKuduBalance,
         })
         .then(() => {
-          console.log('Kudu Bucks updated successfully in Firestore.');
+          // console.log('Kudu Bucks updated successfully in Firestore.');
         })
         .catch((error) => {
-          console.error('Error updating Kudu Bucks in Firestore:', error);
+          // console.error('Error updating Kudu Bucks in Firestore:', error);
           alert('Error updating Kudu Bucks.');
         });
 
@@ -118,7 +117,7 @@ const Profile = () => {
         handleClosePopup();
       })
       .catch((error) => {
-        console.error('Error canceling rental:', error);
+        // console.error('Error canceling rental:', error);
         alert('Error canceling rental.');
       });
   };
@@ -172,18 +171,13 @@ const Profile = () => {
                     Change password
                   </a>
                 </div>
-                 {/* Profile Stats */}
-                <div className="profile-stats">
+              </div>
+              <div className="profile-stats">
                   <div className="stat-item">
                     <h3 style={{ color: getKuduColor(kudu) }}>{kudu}</h3>
                     <p>KuduBucks</p>
                   </div>
-                  <div className="stat-item">
-                    <h3>23</h3>
-                    <p>Vehicles Available</p>
-                  </div>
                 </div>
-              </div>
             </div>
 
             {!showForgotPassword ? (

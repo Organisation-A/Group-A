@@ -34,7 +34,6 @@ const Busschedule = () => {
         }));
         setBuses(busSchedules);
       } catch (error) {
-        console.error("Error fetching bus schedules:", error);
       }
     };
 
