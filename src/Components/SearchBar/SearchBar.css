@@ -63,6 +63,8 @@
   list-style: none;
   padding: 10px;
   margin: 0;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .recent-search-item {
@@ -113,4 +115,8 @@
 
 .header1 {
   margin-left: 40px;
+}
+
+.display-none {
+  display: none;
 }

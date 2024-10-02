@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapStyle } from "./MapStyle";
+import "./BuildingMap.css";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -473,8 +474,7 @@ const BuildingMap = () => {
             padding: "20px",
             borderRadius: "10px",
             boxShadow: "0 2px6px rgba(0 ,0 ,0 ,0.3)",
-            maxHeight: "calc(100vh -120px)",
-            overflowY: "auto",
+            maxHeight: "60vh",
             minWidth: "300px",
             maxWidth: "400px",
           }}

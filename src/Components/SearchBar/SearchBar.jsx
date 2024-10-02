@@ -6,7 +6,7 @@ import { MdClear } from "react-icons/md";
 import { firestore } from "../../utils/firebase"; // Correct import
 import { collection, getDocs } from "firebase/firestore";
 
-const SearchBar = () => {
+const SearchBar = ({ onQueryChange }) => {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -36,23 +36,30 @@ const SearchBar = () => {
   const handleInputChange = (event) => {
     const value = event.target.value;
     setQuery(value);
-    setDescriptionData(null);
+    onQueryChange(value);
 
-    // Filter buildings based on query
-    const filtered = buildings.filter(
-      (building) =>
-        building.id.toLowerCase().includes(value.toLowerCase()) ||
-        (building["other-names"] &&
-          building["other-names"].toLowerCase().includes(value.toLowerCase()))
-    );
-    setFilteredSearches(filtered);
-    setShowDropdown(true);
+    if (value.trim() !== "") {
+      // Filter buildings based on query
+      const filtered = buildings.filter(
+        (building) =>
+          building.id.toLowerCase().includes(value.toLowerCase()) ||
+          (building["other-names"] &&
+            building["other-names"].toLowerCase().includes(value.toLowerCase()))
+      );
+      setFilteredSearches(filtered);
+      setShowDropdown(true);
+    } else {
+      setFilteredSearches([]);
+      setShowDropdown(false);
+    }
   };
 
   const handleClearClick = () => {
     setQuery("");
     setDescriptionData(null);
     setShowDropdown(false);
+    setFilteredSearches([]);
+    onQueryChange("");
   };
 
   const handleSearch = (event) => {
@@ -62,7 +69,8 @@ const SearchBar = () => {
     const matchedBuilding = buildings.find(
       (building) =>
         building.id.toLowerCase() === lowerQuery ||
-        (building["other-names"] && building["other-names"].toLowerCase() === lowerQuery)
+        (building["other-names"] &&
+          building["other-names"].toLowerCase() === lowerQuery)
     );
 
     if (matchedBuilding) {
@@ -88,7 +96,9 @@ const SearchBar = () => {
   };
 
   const handleFocus = () => {
-    setShowDropdown(true);
+    if (query.trim() !== "") {
+      setShowDropdown(true);
+    }
   };
 
   const handleSearchSelect = (searchTerm) => {
@@ -130,7 +140,7 @@ const SearchBar = () => {
         {query && <MdClear className="clear-icon" onClick={handleClearClick} />}
       </form>
 
-      {showDropdown && filteredSearches.length > 0 && (
+      {query.trim() !== "" && showDropdown && filteredSearches.length > 0 && (
         <div className="overlay">
           <ul className="recent-searches-dropdown">
             {filteredSearches.map((building, index) => (
@@ -161,7 +171,11 @@ const SearchBar = () => {
             <p className="description1">{descriptionData.text}</p>
             <p className="description1">Side: {descriptionData.side}</p>
             {descriptionData.link && (
-              <a href={descriptionData.link} target="_blank" rel="noopener noreferrer">
+              <a
+                href={descriptionData.link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Get Directions
               </a>
             )}

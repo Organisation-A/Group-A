@@ -81,3 +81,8 @@
   margin-top: 10px;
   margin-right: 40px;
 }
+
+.schedule {
+  overflow-y: auto;
+  max-height: 50vh;
+}
