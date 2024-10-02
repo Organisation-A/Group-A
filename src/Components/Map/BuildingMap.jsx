@@ -1,11 +1,80 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapStyle } from "./MapStyle";
-
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
+let customLocations = [
+  {
+    Vehicle: "Bicycle",
+    id: "Bus-Station",
+    lng: 28.0282,
+    location: "Yale Road, AMIC",
+    " availability": 10,
+    lat: -26.1907,
+  },
+  {
+    Vehicle: "Bicycle",
+    id: "rentals",
+    lng: 28.025,
+    location: "WITS Law Lawns",
+    availability: 10,
+    lat: -26.188,
+  },
+  {
+    Vehicle: "Bicycle",
+    id: "rentals3",
+    lng: 28.028,
+    location: "Origin Centre",
+    availability: 10,
+    lat: -26.192,
+  },
+  {
+    Vehicle: "Skateboards",
+    id: "rentals4",
+    lng: 28.025,
+    location: "WITS SCIENCE STADIUM",
+    availability: 10,
+    lat: -26.191,
+  },
+  {
+    Vehicle: "Skateboards",
+    id: "rentals5",
+    lng: 28.026,
+    availability: 10,
+    lat: -26.19,
+    location: "TW Kambule",
+  },
+  {
+    Vehicle: "Skateboards",
+    id: "rentals7",
+    lng: 28.03,
+    location: "Mens Halls Of Residence",
+    availability: 10,
+    lat: -26.189,
+  },
+];
+
 const BuildingMap = () => {
+  const [rental, setRental] = useState([]);
+
+  //fetch data from
+  useEffect(() => {
+    axios
+      .get("https://api-campus-transport.vercel.app/getRent")
+      .then((response) => {
+        setRental(response.data);
+        // console.log(response.data);
+        // console.log(rental);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -29,38 +98,47 @@ const BuildingMap = () => {
 
   const calculateRoute = useCallback(
     (origin, destination) => {
-      directionsServiceRef.current.route(
-        {
-          origin: origin,
-          destination: destination,
-          travelMode: googleMaps.maps.TravelMode[selectedMode],
-        },
-        (response, status) => {
-          if (status === "OK") {
-            directionsRendererRef.current.setDirections(response);
-            const routeDetails = response.routes[0].legs[0];
-            setDirections(routeDetails);
-            localStorage.setItem("directions", JSON.stringify(routeDetails));
-            if (originMarkerRef.current) {
-              originMarkerRef.current.setPosition(routeDetails.start_location);
-            }
-            if (destinationMarkerRef.current) {
-              destinationMarkerRef.current.setPosition(
-                routeDetails.end_location
-              );
-            }
-            localStorage.setItem(
-              "route",
-              JSON.stringify({
-                origin: routeDetails.start_location.toJSON(),
-                destination: routeDetails.end_location.toJSON(),
-              })
-            );
-          } else {
-            console.log("Directions request failed due to " + status);
+      const request = {
+        origin: origin,
+        destination: destination,
+        travelMode:
+          googleMaps.maps.TravelMode[
+            selectedMode === "ACCESSIBILITY" ? "WALKING" : selectedMode
+          ],
+        provideRouteAlternatives: true,
+      };
+
+      if (selectedMode === "ACCESSIBILITY") {
+        request.transitOptions = {
+          modes: ["BUS", "SUBWAY", "TRAIN", "TRAM", "RAIL"],
+          routingPreference: "FEWER_TRANSFERS",
+        };
+        request.optimizeWaypoints = true;
+      }
+
+      directionsServiceRef.current.route(request, (response, status) => {
+        if (status === "OK") {
+          directionsRendererRef.current.setDirections(response);
+          const routeDetails = response.routes[0].legs[0];
+          setDirections(routeDetails);
+          localStorage.setItem("directions", JSON.stringify(routeDetails));
+          if (originMarkerRef.current) {
+            originMarkerRef.current.setPosition(routeDetails.start_location);
           }
+          if (destinationMarkerRef.current) {
+            destinationMarkerRef.current.setPosition(routeDetails.end_location);
+          }
+          localStorage.setItem(
+            "route",
+            JSON.stringify({
+              origin: routeDetails.start_location.toJSON(),
+              destination: routeDetails.end_location.toJSON(),
+            })
+          );
+        } else {
+          console.log("Directions request failed due to " + status);
         }
-      );
+      });
     },
     [googleMaps, selectedMode]
   );
@@ -143,10 +221,124 @@ const BuildingMap = () => {
     },
     [userLocation, googleMaps, createMarkersAndCalculateRoute]
   );
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Radius of the Earth in meters
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in meters
+    return distance;
+  }
+
+  function handleDrop(location) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        const distance = calculateDistance(
+          location.lat,
+          location.lng,
+          userLat,
+          userLng
+        );
+        console.log("Distance to the drop-off location:", distance);
+        if (distance <= 90) {
+          toast.success("Drop off successful!");
+        } else {
+          toast.error(
+            `Drop off unsuccessful, too far from the ${location.location} station.`
+          );
+        }
+      },
+      (error) => {
+        toast.error("Unable to retrieve your location.");
+      }
+    );
+  }
+
+  function createInfoWindow(googleMaps, location) {
+    const infoWindow = new googleMaps.maps.InfoWindow({
+      content: `<div>
+                  <h3>${location.location}</h3>
+                  <p>Lat: ${location.lat}, Lng: ${location.lng}</p>
+                  <p>Availability: ${location.availability}</p>
+                  <button id="dropOffButton-${location.id}">Drop-Off rentals</button>
+                </div>`,
+    });
+    googleMaps.maps.event.addListener(infoWindow, "domready", () => {
+      const dropOffButton = document.getElementById(
+        `dropOffButton-${location.id}`
+      );
+      if (dropOffButton) {
+        dropOffButton.addEventListener("click", () => handleDrop(location));
+      }
+    });
+    return infoWindow;
+  }
+
+  const addCustomLocationMarkers = useCallback(() => {
+    if (googleMaps && mapInstanceRef.current) {
+      customLocations.forEach((location) => {
+        if (
+          !location.id ||
+          !location.lat ||
+          !location.lng ||
+          !location.location
+        ) {
+          console.error("Invalid rental data:", location);
+          return; // Skip invalid rental data
+        }
+        let icon;
+
+        // Define custom icons based on location type
+        switch (location.Vehicle) {
+          case "Bicycle":
+            icon = {
+              url: "https://img.icons8.com/?size=100&id=24077&format=png&color=000000",
+              scaledSize: new googleMaps.maps.Size(30, 30),
+            };
+            break;
+          case "Skateboards":
+            icon = {
+              url: "https://img.icons8.com/?size=100&id=22466&format=png&color=000000", // Replace with relevant icons
+              scaledSize: new googleMaps.maps.Size(30, 30),
+            };
+
+            break;
+          default:
+            icon = {
+              url: "https://img.icons8.com/?size=100&id=77850&format=png&color=000000",
+              scaledSize: new googleMaps.maps.Size(30, 30),
+            };
+        }
+
+        const marker = new googleMaps.maps.Marker({
+          position: { lat: location.lat, lng: location.lng },
+          map: mapInstanceRef.current,
+          icon: icon,
+          title: location.location,
+        });
+
+        // Create an info window for each marker
+        const infoWindow = createInfoWindow(googleMaps, location);
+
+        // Add click listener to open info window
+        marker.addListener("click", () => {
+          infoWindow.open(mapInstanceRef.current, marker);
+        });
+      });
+    }
+  }, [googleMaps, createInfoWindow]);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "AIzaSyA8Xe4zjl1vMpWtm3JCIE_G7Mz7zhHSD2Y",
+      apiKey: "API KEY HERE",
       version: "weekly",
       libraries: ["places"],
     });
@@ -229,6 +421,8 @@ const BuildingMap = () => {
 
       loadPersistedRoute();
 
+      addCustomLocationMarkers();
+
       mapInstanceRef.current.addListener("click", (e) =>
         calculateAndDisplayRoute(e.latLng)
       );
@@ -239,15 +433,14 @@ const BuildingMap = () => {
     calculateAndDisplayRoute,
     isDarkStyle,
     loadPersistedRoute,
+    addCustomLocationMarkers,
   ]);
 
-  // Function to toggle the map style
   const toggleMapStyle = () => {
     setIsDarkStyle((prevIsDarkStyle) => {
       const newIsDarkStyle = !prevIsDarkStyle;
       localStorage.setItem("isDarkStyle", JSON.stringify(newIsDarkStyle));
 
-      // Update map style immediately
       if (mapInstanceRef.current && googleMaps) {
         mapInstanceRef.current.setOptions({
           styles: newIsDarkStyle ? MapStyle : [],
@@ -258,7 +451,6 @@ const BuildingMap = () => {
     });
   };
 
-  // Function to recenter the map to the user's current location
   const recenterMapToUserLocation = () => {
     if (mapInstanceRef.current && userLocation) {
       mapInstanceRef.current.panTo(userLocation);
@@ -313,6 +505,7 @@ const BuildingMap = () => {
               <option value="DRIVING">Driving</option>
               <option value="BICYCLING">Bicycling</option>
               <option value="TRANSIT">Transit</option>
+              <option value="ACCESSIBILITY">Accessibility</option>
             </select>
           </div>
 
@@ -346,8 +539,15 @@ const BuildingMap = () => {
             Recenter Map
           </button>
 
-          <p>Distance:{directions.distance.text}</p>
-          <p>Duration:{directions.duration.text}</p>
+          <p>Distance: {directions.distance.text}</p>
+          <p>Duration: {directions.duration.text}</p>
+
+          {selectedMode === "ACCESSIBILITY" && (
+            <p style={{ color: "blue" }}>
+              This route attempts to provide an accessible path using public
+              transit options where available.
+            </p>
+          )}
 
           <ol style={{ paddingLeft: "30px" }}>
             {directions.steps.map((step, index) => (
@@ -360,6 +560,17 @@ const BuildingMap = () => {
           </ol>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
