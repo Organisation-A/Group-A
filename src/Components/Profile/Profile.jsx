@@ -8,6 +8,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
+import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import BuildingMap from "../Map/BuildingMap";
@@ -154,7 +155,7 @@ const Profile = () => {
         <SideMenu />
         <div>
           <SearchBar id="busSearch" />
-
+          <Popup />
           {/* Profile Card */}
           <div className="profile-card">
             <div className="profile-header">

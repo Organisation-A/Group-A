@@ -150,6 +150,7 @@ code {
 /* Make all interactive elements in .front explicitly interactive */
 .front .search-form,
 .side-menu,
+.popup,
 .logout,
 .bicycle-list,
 .popup-overlay,
