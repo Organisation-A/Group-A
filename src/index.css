@@ -45,7 +45,8 @@ code {
   width: 250px; /* Expanded width */
 }
 
-@media (max-width: 430px) { /* Mobile */
+@media (max-width: 430px) {
+  /* Mobile */
   .side-menu {
     width: 100%; /* Expand to full width of the screen */
     height: 80px;
@@ -72,7 +73,7 @@ code {
     width: 100%;
     /* height: calc(100% - 80px);  */
     overflow: hidden; /* Ensures content doesn't spill out */
-    bottom: 80px; 
+    bottom: 80px;
   }
 
   .container {
@@ -85,7 +86,6 @@ code {
     bottom: 80px;
   }
 }
-
 
 .content-container {
   /* Allows the content to take up the remaining space next to the SideMenu */
@@ -159,7 +159,8 @@ code {
 .lab-container,
 .recent-searches-dropdown,
 .recent-search-item,
-#directions {
+#directions,
+.search-result-card {
   pointer-events: auto;
 }
 

@@ -89,6 +89,7 @@
   margin-top: 15px;
   width: 500px;
   height: 600px;
+  overflow-y: auto;
   padding-left: 80px;
 }
 
