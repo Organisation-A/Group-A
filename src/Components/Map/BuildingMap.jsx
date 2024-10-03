@@ -116,7 +116,7 @@ const BuildingMap = () => {
           // console.log("Drop off successful!");
           toast.success("Drop off successful!");
         } else {
-          toast.error("Drop off unsuccessful, too far from the station.");
+          toast.error("Drop off unsuccessful, too far from the ",location.location," station.");
         }
       },
       (error) => {
