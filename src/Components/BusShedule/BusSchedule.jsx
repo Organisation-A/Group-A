@@ -123,7 +123,7 @@ const Busschedule = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar id="busSearch" />
+            <SearchBar className="busSearch" />
             <div className="bus-schedule-container">
               <h2 className="BUs">Bus Schedule</h2>
               <div className="date-time-header">
@@ -136,18 +136,22 @@ const Busschedule = () => {
                 {["ALL", "Full Circuit", "Reverse", "WJ", "NSW | Rosebank", "EOH | KNK", "NSW | WEC", "KNK | Rosebank"].map((route) => (
                   <button
                     key={route}
-                    className={`filter-button ${selectedRoutes.includes(route) ? "active" : ""}`}
+                    className={`routes${selectedRoutes.includes(route) ? "active" : ""}`}
                     onClick={() => handleFilterClick(route)}
-                    style={{ backgroundColor: selectedRoutes.includes(route) ? "green" : "" }}
+                    style={{ backgroundColor: selectedRoutes.includes(route) ? "#304A7D" : "" }}
                   >
+                    <div className="text-buttons">
                     {route}
+                    </div>
                   </button>
                 ))}
               </div>
 
               {/* Download Button */}
               <button className="download-button" onClick={downloadScheduleAsPDF}>
+              <div className="download-button-text">
                 Download Schedule as PDF
+                    </div>
               </button>
 
               {/* Schedule Container */}
