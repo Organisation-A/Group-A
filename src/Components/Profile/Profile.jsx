@@ -8,7 +8,6 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
-import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import BuildingMap from "../Map/BuildingMap";
@@ -26,8 +25,7 @@ const Profile = () => {
   const [rental, setRental] = useState([]);
   const [userData, setUserData] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false); // Toggle password reset form within the card
-  const [showPopup, setShowPopup] = useState(false);
-
+  const [showPopup, setShowPopup] = useState(false); 
   useEffect(() => {
     // Add class when component mounts
     document.body.classList.add("hide-mapbox-controls");
@@ -56,8 +54,7 @@ const Profile = () => {
             setFullName(`${userData.firstName} ${userData.lastName}`);
             
           } 
-        }).catch((error) => {
-        });
+        })
       } else{
         setUserId(null);
         setUserData(null); // Reset user location
@@ -89,7 +86,7 @@ const Profile = () => {
   const cancelRent = (ritem) => {
    
     if (kudu < 10) {
-      alert("You need more Kudu Bucks to rent this ride.");
+      toast.error("You need more Kudu Bucks to rent this ride.");
       handleClosePopup();
       return;
     }
@@ -107,19 +104,18 @@ const Profile = () => {
           kudu: newKuduBalance,
         })
         .then(() => {
-          // console.log('Kudu Bucks updated successfully in Firestore.');
+          
         })
         .catch((error) => {
-          // console.error('Error updating Kudu Bucks in Firestore:', error);
-          alert('Error updating Kudu Bucks.');
+          
         });
 
-        alert('Rental cancelation successful!');
+        toast.success("Rental cancellation successful!");
         handleClosePopup();
       })
       .catch((error) => {
         // console.error('Error canceling rental:', error);
-        alert('Error canceling rental.');
+        toast.error("Error canceling rental.");
       });
   };
 
@@ -155,7 +151,7 @@ const Profile = () => {
         <SideMenu />
         <div>
           <SearchBar id="busSearch" />
-          <Popup />
+
           {/* Profile Card */}
           <div className="profile-card">
             <div className="profile-header">

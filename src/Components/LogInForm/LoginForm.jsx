@@ -59,7 +59,6 @@ const LoginForm = () => {
       toast.success("Password reset email sent! Check your inbox.");
       setShowForgotPassword(false); // Close the forgot password form
     } catch (error) {
-      console.error(error.message);
       toast.error("Error sending password reset email. Please try again.");
     }
   };
@@ -153,3 +152,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
