@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./BusSchedule.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
-import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
+import Popup from "../EmergencyAlert/EmergencyAlert.jsx";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -29,14 +29,15 @@ const Busschedule = () => {
   useEffect(() => {
     const fetchBusSchedules = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "Transportation Schedules"));
+        const querySnapshot = await getDocs(
+          collection(db, "Transportation Schedules")
+        );
         const busSchedules = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setBuses(busSchedules);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchBusSchedules();
@@ -74,8 +75,11 @@ const Busschedule = () => {
 
   // Filter buses to show only the upcoming ones based on current time
   const getUpcomingBuses = () => {
-    const currentDay = currentDateTime.toLocaleString("en-US", { weekday: "long" });
-    const currentTimeInMinutes = currentDateTime.getHours() * 60 + currentDateTime.getMinutes(); // Current time in minutes
+    const currentDay = currentDateTime.toLocaleString("en-US", {
+      weekday: "long",
+    });
+    const currentTimeInMinutes =
+      currentDateTime.getHours() * 60 + currentDateTime.getMinutes(); // Current time in minutes
 
     // Filter schedules based on the current day, selected routes, and upcoming time
     return buses
@@ -146,25 +150,41 @@ const Busschedule = () => {
 
               {/* Filter Buttons */}
               <div className="filter-buttons">
-                {["ALL", "Full Circuit", "Reverse", "WJ", "NSW | Rosebank", "EOH | KNK", "NSW | WEC", "KNK | Rosebank"].map((route) => (
+                {[
+                  "ALL",
+                  "Full Circuit",
+                  "Reverse",
+                  "WJ",
+                  "NSW | Rosebank",
+                  "EOH | KNK",
+                  "NSW | WEC",
+                  "KNK | Rosebank",
+                ].map((route) => (
                   <button
                     key={route}
-                    className={`routes${selectedRoutes.includes(route) ? "active" : ""}`}
+                    className={`routes${
+                      selectedRoutes.includes(route) ? "active" : ""
+                    }`}
                     onClick={() => handleFilterClick(route)}
-                    style={{ backgroundColor: selectedRoutes.includes(route) ? "#304A7D" : "" }}
+                    style={{
+                      backgroundColor: selectedRoutes.includes(route)
+                        ? "#304A7D"
+                        : "",
+                    }}
                   >
-                    <div className="text-buttons">
-                    {route}
-                    </div>
+                    <div className="text-buttons">{route}</div>
                   </button>
                 ))}
               </div>
 
               {/* Download Button */}
-              <button className="download-button" onClick={downloadScheduleAsPDF}>
-              <div className="download-button-text">
-                Download Schedule as PDF
-                    </div>
+              <button
+                className="download-button"
+                onClick={downloadScheduleAsPDF}
+              >
+                <div className="download-button-text">
+                  Download Schedule as PDF
+                </div>
               </button>
 
               {/* Schedule Container */}

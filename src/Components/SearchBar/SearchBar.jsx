@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./SearchBar.css";
 import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
-import { auth,firestore } from "../../utils/firebase"; // Correct import
+import { auth, firestore } from "../../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
 const SearchBar = ({ onQueryChange }) => {
@@ -13,17 +13,18 @@ const SearchBar = ({ onQueryChange }) => {
   const [descriptionData, setDescriptionData] = useState(null);
   const [buildings, setBuildings] = useState([]);
   const [filteredSearches, setFilteredSearches] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   useEffect(() => {
-    // Fetch building data only once, store it in sessionStorage
+    // Fetch building data only once, store it in localStorage
     const fetchBuildings = async () => {
       try {
-        // Check if buildings data already exists in sessionStorage
-        const storedBuildings = sessionStorage.getItem('buildingsData');
-  
+        // Check if buildings data already exists in localStorage
+        const storedBuildings = localStorage.getItem("buildingsData");
+
         if (storedBuildings) {
           // If data exists, use it directly
-          console.log("Fetching buildings data from sessionStorage");
+          console.log("Fetching buildings data from localStorage");
           setBuildings(JSON.parse(storedBuildings));
         } else {
           // If no data, fetch from Firestore
@@ -33,26 +34,26 @@ const SearchBar = ({ onQueryChange }) => {
           snapshot.forEach((doc) => {
             buildingsData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
           });
-          
-          // Set the data in state and store it in sessionStorage
+
+          // Set the data in state and store it in localStorage
           setBuildings(buildingsData);
-          sessionStorage.setItem('buildingsData', JSON.stringify(buildingsData));
+          localStorage.setItem("buildingsData", JSON.stringify(buildingsData));
         }
       } catch (error) {
         console.error("Error fetching buildings:", error);
       }
     };
-  
+
     fetchBuildings();
-  
-    // Clean up sessionStorage on logout
+
+    // Clean up localStorage on logout
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
-        console.log("User logged out. Clearing sessionStorage for buildings.");
-        sessionStorage.removeItem('buildingsData');
+        console.log("User logged out. Clearing localStorage for buildings.");
+        localStorage.removeItem("buildingsData");
       }
     });
-  
+
     // Clean up the auth subscription on unmount
     return () => unsubscribe();
   }, []);
@@ -83,6 +84,7 @@ const SearchBar = ({ onQueryChange }) => {
     setDescriptionData(null);
     setShowDropdown(false);
     setFilteredSearches([]);
+    setSelectedBuilding(null);
     onQueryChange("");
   };
 
@@ -102,7 +104,10 @@ const SearchBar = ({ onQueryChange }) => {
         text: matchedBuilding.description || "No description available",
         image: matchedBuilding.image || null,
         side: matchedBuilding.side || "No side information",
-        link: `https://www.google.com/maps?q=${matchedBuilding.latitude},${matchedBuilding.longitude}`,
+      });
+      setSelectedBuilding({
+        latitude: matchedBuilding.latitude,
+        longitude: matchedBuilding.longitude,
       });
 
       // Add to recent searches if not already present
@@ -114,6 +119,7 @@ const SearchBar = ({ onQueryChange }) => {
         text: "No description available for this search.",
         image: null,
       });
+      setSelectedBuilding(null);
     }
 
     setShowDropdown(false);
@@ -141,8 +147,23 @@ const SearchBar = ({ onQueryChange }) => {
         text: matchedBuilding.description || "No description available",
         image: matchedBuilding.image || null,
         side: matchedBuilding.side || "No side information",
-        link: `https://www.google.com/maps?q=${matchedBuilding.latitude},${matchedBuilding.longitude}`,
       });
+      setSelectedBuilding({
+        latitude: matchedBuilding.latitude,
+        longitude: matchedBuilding.longitude,
+      });
+    }
+  };
+
+  const handleGetDirectionsClick = () => {
+    if (selectedBuilding) {
+      const event = new CustomEvent("getDirections", {
+        detail: {
+          latitude: selectedBuilding.latitude,
+          longitude: selectedBuilding.longitude,
+        },
+      });
+      window.dispatchEvent(event);
     }
   };
 
@@ -194,14 +215,23 @@ const SearchBar = ({ onQueryChange }) => {
             )}
             <p className="description1">{descriptionData.text}</p>
             <p className="description1">Side: {descriptionData.side}</p>
-            {descriptionData.link && (
-              <a
-                href={descriptionData.link}
-                target="_blank"
-                rel="noopener noreferrer"
+            {selectedBuilding && (
+              <button
+                onClick={handleGetDirectionsClick}
+                className="get-directions-button"
+                style={{
+                  width: "50%",
+                  padding: "10px",
+                  margin: "15px 0px",
+                  backgroundColor: "#4285F4",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
               >
                 Get Directions
-              </a>
+              </button>
             )}
           </div>
         </div>
