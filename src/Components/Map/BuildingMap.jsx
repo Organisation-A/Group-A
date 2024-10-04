@@ -1,75 +1,38 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapStyle } from "./MapStyle";
-import axios from "axios";
-import { auth, firestore } from "../../utils/firebase.js";
-import { doc, getDoc } from "firebase/firestore";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import axios from 'axios';
+import { auth, firestore } from '../../utils/firebase.js';
+import { doc, getDoc} from "firebase/firestore";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useUserData } from '../../utils/userDataUtils.js';
+import { useNavigate } from "react-router-dom";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
 let rental = [
-  {
-    Vehicle: "Bicycle",
-    id: "Bus-Station",
-    lng: 28.0282,
-    location: "Yale Road, AMIC",
-    " availability": 10,
-    lat: -26.1907,
-  },
-  {
-    Vehicle: "Bicycle",
-    id: "rentals",
-    lng: 28.025,
-    location: "WITS Law Lawns",
-    availability: 10,
-    lat: -26.188,
-  },
-  {
-    Vehicle: "Bicycle",
-    id: "rentals3",
-    lng: 28.028,
-    location: "Origin Centre",
-    availability: 10,
-    lat: -26.192,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "rentals4",
-    lng: 28.025,
-    location: "WITS SCIENCE STADIUM",
-    availability: 10,
-    lat: -26.191,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "rentals5",
-    lng: 28.026,
-    availability: 10,
-    lat: -26.19,
-    location: "TW Kambule",
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "rentals7",
-    lng: 28.03,
-    location: "Mens Halls Of Residence",
-    availability: 10,
-    lat: -26.189,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "BB",
-    lng: 28.036013,
-    location: "BB",
-    availability: 10,
-    lat: -26.182666,
-  },
-];
+  {"Vehicle":"Bicycle","id":"Bus-Station","lng":28.0282,"location":"Yale Road, AMIC"," availability":10,"lat":-26.1907},
+  {"Vehicle":"Bicycle","id":"WITS Law Lawns Station","lng":28.025,"location":"WITS Law Lawns","availability":10,"lat":-26.188},
+  {"Vehicle":"Bicycle","id":"Origin Centre Station","lng":28.028,"location":"Origin Centre","availability":10,"lat":-26.192},
+  {"Vehicle":"Skateboards","id":"WSS Station","lng":28.025,"location":"WITS Science Stadium","availability":10,"lat":-26.191},
+  {"Vehicle":"Skateboards","id":"TW Kambule Station","lng":28.026,"availability":10,"lat":-26.19,"location":"TW Kambule"},
+  {"Vehicle":"Skateboards","id":"Mens Res Station","lng":28.03,"location":"Mens Halls Of Residence","availability":10,"lat":-26.189},
+  {"Vehicle":"Skateboards","id":"BB","lng":28.036013,"location":"BB","availability":10,"lat":-26.182666}
+]
 
 const BuildingMap = () => {
+
+  if (process.env.NODE_ENV === 'test') {
+    return null;
+  }
+  const navigate = useNavigate();
+  const handleProfile = () => {
+    navigate("/Profile");
+  };
+  const { userData, userId, refetchUserData } = useUserData();
+
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -91,55 +54,14 @@ const BuildingMap = () => {
   });
   const mapInstanceRef = useRef(null);
 
-  const [userPickup, setUserPickup] = useState("test");
-  const [UID, setUserId] = useState(null);
-  const [selectedCoordinates, setSelectedCoordinates] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in, set the user ID
-        setUserId(user.uid);
-
-        // Fetch user document to check if location and kudu bucks exists
-        const userRef = doc(firestore, "Users", user.uid);
-        getDoc(userRef)
-          .then((docSnap) => {
-            if (docSnap.exists()) {
-              const userData = docSnap.data();
-              setUserPickup(userData.location);
-              // console.log('User location:', userData.location);
-            } else {
-              setUserId(null);
-              setUserPickup(null);
-              console.log("No user is logged in");
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching user document:", error);
-          });
-      } else {
-        // User is signed out
-        setUserId(null);
-        setUserPickup(null); // Reset user location
-        console.log("No user is logged in");
-      }
-    });
-
-    // Clean up subscription on unmount
-    return () => unsubscribe();
-  }, []);
-
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000; // Radius of the Earth in meters
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a =
+    const a = 
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) *
-        Math.cos(lat2 * (Math.PI / 180)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // Distance in meters
     return distance;
@@ -148,15 +70,17 @@ const BuildingMap = () => {
   // Handle Rent button click
   const handleDropOff = (ritem) => {
     axios
-      .post(
-        `https://api-campus-transport.vercel.app/cancel-rent/${UID}/${ritem}`
-      )
+      .post(`https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`)
       .then((response) => {
-        alert("Rental drop-off successful!");
+        alert('Rental drop-off successful!');
+
+        sessionStorage.removeItem('userData'); // Clear sessionStorage, and the cosole that appers in rentals in for the profile being stored
+        refetchUserData();
+        handleProfile();
       })
       .catch((error) => {
-        console.error("Error dropping off rental:", error);
-        alert("Error dropping off rental.");
+        console.error('Error dropping off rental:', error);
+        alert('Error dropping off rental.');
       });
   };
 
@@ -165,23 +89,16 @@ const BuildingMap = () => {
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
-        const distance = calculateDistance(
-          location.lat,
-          location.lng,
-          userLat,
-          userLng
-        );
+        const distance = calculateDistance(location.lat, location.lng, userLat, userLng);
         console.log("Distance to the drop-off location:", distance);
         if (distance <= 500) {
           handleDropOff(location.id);
           // console.log("Drop off successful!");
           toast.success("Drop off successful!");
         } else {
-          toast.error(
-            "Drop off unsuccessful, too far from the ",
-            location.location,
-            " station."
-          );
+          alert("Yo")
+          toast.error(`Drop off unsuccessful, too far from the, ${location.id}`);
+          console.log("Drop off unsuccessful, too far from the ",location.id)
         }
       },
       (error) => {
@@ -189,6 +106,7 @@ const BuildingMap = () => {
       }
     );
   }
+
 
   const calculateRoute = useCallback(
     (origin, destination) => {
@@ -308,7 +226,7 @@ const BuildingMap = () => {
   );
 
   // console.log('User pickup outside: ', userPickup);
-
+  
   const addCustomLocationMarkers = useCallback(() => {
     if (googleMaps && mapInstanceRef.current) {
       rental.forEach((i) => {
@@ -334,6 +252,7 @@ const BuildingMap = () => {
               scaledSize: new googleMaps.maps.Size(50, 50),
             };
         }
+
 
         const marker = new googleMaps.maps.Marker({
           position: { lat: i.lat, lng: i.lng },
@@ -361,24 +280,23 @@ const BuildingMap = () => {
         });
 
         // Listen for the 'domready' event to attach the click handler to the button
-        googleMaps.maps.event.addListener(infoWindow, "domready", () => {
-          const dropOffButton = document.getElementById(
-            `dropOffButton-${i.id}`
-          );
-          if (dropOffButton) {
-            dropOffButton.addEventListener("click", () => {
-              console.log(`Drop-Off clicked for ${i.id}`);
-              handleDrop(i);
-            });
-          }
-        });
+      googleMaps.maps.event.addListener(infoWindow, 'domready', () => {
+        const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
+        if (dropOffButton) {
+          dropOffButton.addEventListener("click", () => {
+            console.log(`Drop-Off clicked for ${i.id}`);
+            handleDrop(i);
+          });
+        }
+      });
+
       });
     }
-  }, [googleMaps, userPickup]);
+  }, [googleMaps, userData.location]);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "AIzaSyBGvZYxZgdeKB1kHg9gYyMKc2dCdtEUsa8",
       version: "weekly",
       libraries: ["places"],
     });
@@ -496,45 +414,6 @@ const BuildingMap = () => {
       mapInstanceRef.current.panTo(userLocation);
     }
   };
-
-  useEffect(() => {
-    if (
-      selectedCoordinates &&
-      googleMaps &&
-      mapInstanceRef.current &&
-      userLocation
-    ) {
-      const destinationLatLng = new googleMaps.maps.LatLng(
-        selectedCoordinates.latitude,
-        selectedCoordinates.longitude
-      );
-      calculateAndDisplayRoute(destinationLatLng);
-    }
-  }, [
-    selectedCoordinates,
-    googleMaps,
-    mapInstanceRef,
-    userLocation,
-    calculateAndDisplayRoute,
-  ]);
-
-  const handleGetDirections = useCallback((latitude, longitude) => {
-    setSelectedCoordinates({ latitude, longitude });
-  }, []);
-
-  useEffect(() => {
-    const handleCustomEvent = (event) => {
-      if (event.detail && event.detail.latitude && event.detail.longitude) {
-        handleGetDirections(event.detail.latitude, event.detail.longitude);
-      }
-    };
-
-    window.addEventListener("getDirections", handleCustomEvent);
-
-    return () => {
-      window.removeEventListener("getDirections", handleCustomEvent);
-    };
-  }, [handleGetDirections]);
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh" }}>

@@ -75,6 +75,7 @@
     },
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",
+      "api/*.{js,jsx}",
       "!src/serviceWorker.js",
       "!src/Components/Map/BuildingMap.jsx",
       "!**/node_modules/**",

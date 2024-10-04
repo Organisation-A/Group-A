@@ -12,7 +12,7 @@ jest.mock('firebase/auth', () => ({
   sendPasswordResetEmail: jest.fn(),
   getAuth: jest.fn(() => ({
     currentUser: null,
-  })),
+  })), 
 }));
 
 jest.mock('firebase/firestore', () => ({

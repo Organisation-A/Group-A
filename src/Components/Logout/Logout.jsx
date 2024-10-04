@@ -22,6 +22,7 @@ const Logout = () => {
 
   const handleLogout = () => {
     navigate("/");
+    sessionStorage.removeItem('userData');
     sessionStorage.removeItem('buildingsData');
   };
   const handleNo = () => {

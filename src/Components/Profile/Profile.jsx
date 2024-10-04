@@ -160,14 +160,14 @@ const Profile = () => {
                     </p>
 
                     {/* Only show the cancel button if the user has a current rental */}
-                    {userData && userData.item && userData.location && (
+                    {/* {userData && userData.item && userData.location && (
                       <a
                         className="cancel-link"
                         onClick={() => cancelRent(userData.item)}
                       >
                         Cancel Rental
                       </a>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </>

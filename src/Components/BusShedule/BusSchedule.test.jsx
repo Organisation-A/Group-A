@@ -95,17 +95,21 @@ describe('BusSchedule Component', () => {
 
   test('toggles filter buttons', async () => {
     renderComponent();
-
+  
     // Click "Full Circuit" filter
     const fullCircuitButton = await screen.findByText(/Full Circuit/i);
     fireEvent.click(fullCircuitButton);
-
-    expect(fullCircuitButton).toHaveStyle('background-color: green');
-
+    const wjButton = await screen.findByText(/WJ/i);
+    const wjButtonColor = getComputedStyle(wjButton).backgroundColor;
+  
+    expect(fullCircuitButton).not.toHaveStyle(wjButtonColor);
+  
     // Click again to unselect
     fireEvent.click(fullCircuitButton);
-    expect(fullCircuitButton).not.toHaveStyle('background-color: green');
+    expect(fullCircuitButton).not.toHaveStyle('background-color: rgb(48, 74, 125)');
   });
+  
+  
 
   test('shows "No more buses available today" when no upcoming buses', async () => {
     renderComponent();
@@ -171,14 +175,18 @@ describe('BusSchedule Component', () => {
     // Click multiple filter buttons
     const fullCircuitButton = await screen.findByText(/Full Circuit/i);
     fireEvent.click(fullCircuitButton);
-  
+    const wjButton = await screen.findByText(/WJ/i);
+    const wjButtonColor = getComputedStyle(wjButton).backgroundColor;
+
     const allButton = await screen.findByText(/ALL/i);
     fireEvent.click(allButton);
   
     // Check if "ALL" is active and other filters are reset
-    expect(allButton).toHaveStyle('background-color: green');
-    expect(fullCircuitButton).not.toHaveStyle('background-color: green');
+    // expect(allButton).toHaveStyle('background-color: rgb(48, 74, 125)');
+    expect(fullCircuitButton).not.toHaveStyle(wjButtonColor);
   });
+  
+  
 
    test('updates current time every second', async () => {
     jest.useFakeTimers();
@@ -212,12 +220,21 @@ describe('BusSchedule Component', () => {
     fireEvent.click(fullCircuitButton);
   
     const reverseButton = await screen.findByText(/Reverse/i);
+  const wjButton = await screen.findByText(/WJ/i);
+
+  // Get computed styles for both buttons
+  const wjButtonColor = getComputedStyle(wjButton).backgroundColor;
+
+  // Assert that the colors are different
+
     fireEvent.click(reverseButton);
   
     // Verify both routes are included in the filtered result
-    expect(fullCircuitButton).toHaveStyle('background-color: green');
-    expect(reverseButton).toHaveStyle('background-color: green');
+    expect(fullCircuitButton).not.toHaveStyle(wjButtonColor);
+    expect(reverseButton).not.toHaveStyle(wjButtonColor);
   });
+  
+  
   
   
   

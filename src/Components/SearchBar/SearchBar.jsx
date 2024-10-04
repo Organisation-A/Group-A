@@ -24,11 +24,11 @@ const SearchBar = ({ onQueryChange }) => {
 
         if (storedBuildings) {
           // If data exists, use it directly
-          console.log("Fetching buildings data from localStorage");
+          // console.log("Fetching buildings data from localStorage");
           setBuildings(JSON.parse(storedBuildings));
         } else {
           // If no data, fetch from Firestore
-          console.log("Fetching buildings data from Firestore");
+          // console.log("Fetching buildings data from Firestore");
           const snapshot = await getDocs(collection(firestore, "Buildings"));
           let buildingsData = [];
           snapshot.forEach((doc) => {
@@ -40,7 +40,7 @@ const SearchBar = ({ onQueryChange }) => {
           localStorage.setItem("buildingsData", JSON.stringify(buildingsData));
         }
       } catch (error) {
-        console.error("Error fetching buildings:", error);
+        // console.error("Error fetching buildings:", error);
       }
     };
 
@@ -49,7 +49,7 @@ const SearchBar = ({ onQueryChange }) => {
     // Clean up localStorage on logout
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
-        console.log("User logged out. Clearing localStorage for buildings.");
+        // console.log("User logged out. Clearing localStorage for buildings.");
         localStorage.removeItem("buildingsData");
       }
     });
