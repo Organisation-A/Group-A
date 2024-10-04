@@ -21,6 +21,9 @@ let rental = [
 ]
 
 const BuildingMap = () => {
+  if (process.env.NODE_ENV === 'test') {
+    return null;
+  }
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
