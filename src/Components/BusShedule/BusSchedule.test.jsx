@@ -4,6 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import BusSchedule from './BusSchedule';
 import { getFirestore, getDocs, collection } from 'firebase/firestore';
 import html2canvas from 'html2canvas';
+import { getAuth } from "firebase/auth";
 import { jsPDF,addImage, save  } from 'jspdf';
 
 // Mock Firebase Firestore
@@ -33,6 +34,22 @@ jest.mock("firebase/firestore", () => ({
     ],
   }),
 }));
+
+
+
+
+jest.mock("firebase/auth", () => {
+  const originalModule = jest.requireActual("firebase/auth");
+  return {
+    ...originalModule,
+    getAuth: jest.fn(() => ({
+      onAuthStateChanged: jest.fn((callback) => {
+        callback(null); // Mocking a logged-out user, pass a user object if you need to mock a logged-in user
+      }),
+    })),
+  };
+});
+
 
 const renderComponent = () => {
   return render(

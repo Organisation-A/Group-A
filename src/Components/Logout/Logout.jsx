@@ -19,7 +19,7 @@ const Logout = () => {
   }, []);
 
   const navigate = useNavigate();
-
+ 
   const handleLogout = () => {
     navigate("/");
     sessionStorage.removeItem('userData');

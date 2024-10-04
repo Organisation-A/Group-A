@@ -65,7 +65,7 @@ const Profile = () => {
         refetchUserData(); // Trigger a refetch of the user data after cancelation
       })
       .catch((error) => {
-        console.error("Error canceling rental:", error);
+        // console.error("Error canceling rental:", error);
       });
   };
 

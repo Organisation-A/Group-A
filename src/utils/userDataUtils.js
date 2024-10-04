@@ -17,7 +17,7 @@ export const useUserData = () => {
   
           if (!parsedUserData || parsedUserData.uid !== user.uid || rentalCancelled) {
             sessionStorage.removeItem('userData');
-            console.log("Fetching from firestore...");
+            // console.log("Fetching from firestore...");
   
             const userRef = doc(firestore, 'Users', user.uid);
             getDoc(userRef).then((docSnap) => {
@@ -29,7 +29,7 @@ export const useUserData = () => {
               }
             });
           } else {
-            console.log("Fetching from sessionStorage...");
+            // console.log("Fetching from sessionStorage...");
             setUserData(parsedUserData);
           }
         } else {

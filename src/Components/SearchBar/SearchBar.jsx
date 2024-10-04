@@ -6,14 +6,22 @@ import { MdClear } from "react-icons/md";
 import { auth, firestore } from "../../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
-const SearchBar = ({ onQueryChange }) => {
+const SearchBar = ({ onQueryChange, forceShowDropdown = false  }) => {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(forceShowDropdown);
   const [descriptionData, setDescriptionData] = useState(null);
   const [buildings, setBuildings] = useState([]);
   const [filteredSearches, setFilteredSearches] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+  useEffect(() => {
+    // If `forceShowDropdown` changes, update the state accordingly
+    if (forceShowDropdown) {
+      setShowDropdown(true);
+    }
+  }, [forceShowDropdown]);
+
 
   useEffect(() => {
     // Fetch building data only once, store it in localStorage
@@ -55,7 +63,11 @@ const SearchBar = ({ onQueryChange }) => {
     });
 
     // Clean up the auth subscription on unmount
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const handleInputChange = (event) => {
@@ -182,11 +194,11 @@ const SearchBar = ({ onQueryChange }) => {
           <FaSearch className="search-icon" />
         </button>
 
-        {query && <MdClear className="clear-icon" onClick={handleClearClick} />}
+        {query && <MdClear className="clear-icon" data-testid="clear-icon" onClick={handleClearClick} />}
       </form>
 
       {query.trim() !== "" && showDropdown && filteredSearches.length > 0 && (
-        <div className="overlay">
+        <div className="overlay" data-testid="search-dropdown">
           <ul className="recent-searches-dropdown">
             {filteredSearches.map((building, index) => (
               <li
