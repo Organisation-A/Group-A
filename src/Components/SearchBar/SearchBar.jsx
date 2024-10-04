@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./SearchBar.css";
 import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
-import { firestore } from "../../utils/firebase"; // Correct import
+import { auth,firestore } from "../../utils/firebase"; // Correct import
 import { collection, getDocs } from "firebase/firestore";
 
 const SearchBar = ({ onQueryChange }) => {
@@ -13,24 +13,48 @@ const SearchBar = ({ onQueryChange }) => {
   const [descriptionData, setDescriptionData] = useState(null);
   const [buildings, setBuildings] = useState([]);
   const [filteredSearches, setFilteredSearches] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch building data from Firestore
+    // Fetch building data only once, store it in sessionStorage
     const fetchBuildings = async () => {
       try {
-        const snapshot = await getDocs(collection(firestore, "Buildings"));
-        let buildingsData = [];
-        snapshot.forEach((doc) => {
-          buildingsData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
-        });
-        setBuildings(buildingsData);
+        // Check if buildings data already exists in sessionStorage
+        const storedBuildings = sessionStorage.getItem('buildingsData');
+  
+        if (storedBuildings) {
+          // If data exists, use it directly
+          console.log("Fetching buildings data from sessionStorage");
+          setBuildings(JSON.parse(storedBuildings));
+        } else {
+          // If no data, fetch from Firestore
+          console.log("Fetching buildings data from Firestore");
+          const snapshot = await getDocs(collection(firestore, "Buildings"));
+          let buildingsData = [];
+          snapshot.forEach((doc) => {
+            buildingsData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
+          });
+          
+          // Set the data in state and store it in sessionStorage
+          setBuildings(buildingsData);
+          sessionStorage.setItem('buildingsData', JSON.stringify(buildingsData));
+        }
       } catch (error) {
-        // console.error("Error fetching buildings:", error);
+        console.error("Error fetching buildings:", error);
       }
     };
-
+  
     fetchBuildings();
+  
+    // Clean up sessionStorage on logout
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        console.log("User logged out. Clearing sessionStorage for buildings.");
+        sessionStorage.removeItem('buildingsData');
+      }
+    });
+  
+    // Clean up the auth subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleInputChange = (event) => {

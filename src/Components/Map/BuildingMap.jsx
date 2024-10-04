@@ -243,9 +243,7 @@ const BuildingMap = () => {
     [userLocation, googleMaps, createMarkersAndCalculateRoute]
   );
 
-  console.log('User pickup outside: ', userPickup);
-
-  
+  // console.log('User pickup outside: ', userPickup);
   
   const addCustomLocationMarkers = useCallback(() => {
     if (googleMaps && mapInstanceRef.current) {
@@ -256,7 +254,7 @@ const BuildingMap = () => {
         }
         let icon;
 
-        console.log('User pickup inside: ', userPickup);
+        // console.log('User pickup inside: ', userPickup);
 
         // Define custom icons based on location type
         switch (i.id) {
@@ -316,7 +314,7 @@ const BuildingMap = () => {
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "AIzaSyAMpznaYEL4ZeYRD-jVY1QOrTDvGi52NU8",
+      apiKey: "AIzaSyBGvZYxZgdeKB1kHg9gYyMKc2dCdtEUsa8",
       version: "weekly",
       libraries: ["places"],
     });

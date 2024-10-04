@@ -12,6 +12,7 @@ const Busschedule = () => {
   const [buses, setBuses] = useState([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [selectedRoutes, setSelectedRoutes] = useState(["ALL"]);
+  const [isSearchBarEmpty, setIsSearchBarEmpty] = useState(true);
   const db = getFirestore();
   const scheduleRef = useRef();
 
@@ -40,6 +41,17 @@ const Busschedule = () => {
 
     fetchBusSchedules();
   }, [db]);
+
+  useEffect(() => {
+    const turnElement = document.querySelector(".turn-by-turn");
+    if (turnElement) {
+      turnElement.style.display = isSearchBarEmpty ? "block" : "none";
+    }
+  }, [isSearchBarEmpty]);
+
+  const handleQueryChange = (query) => {
+    setIsSearchBarEmpty(query.trim() === "");
+  };
 
   // Function to handle filter button clicks
   const handleFilterClick = (route) => {
@@ -123,7 +135,7 @@ const Busschedule = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar id="busSearch" />
+            <SearchBar onQueryChange={handleQueryChange} />
             <Popup />
             <div className="bus-schedule-container">
               <h2 className="BUs">Bus Schedule</h2>
