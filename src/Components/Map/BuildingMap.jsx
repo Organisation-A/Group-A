@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapStyle } from "./MapStyle";
 import axios from 'axios';
-import { auth, firestore } from '../../utils/firebase.js';
-import { doc, getDoc} from "firebase/firestore";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useUserData } from '../../utils/userDataUtils.js';
@@ -24,14 +22,17 @@ let rental = [
 
 const BuildingMap = () => {
 
+  // Comment line 25-28 in order to remove the ESLINT errors
   if (process.env.NODE_ENV === 'test') {
     return null;
   }
+  
   const navigate = useNavigate();
   const handleProfile = () => {
     navigate("/Profile");
   };
-  const { userData, userId, refetchUserData } = useUserData();
+
+  const { userId, refetchUserData } = useUserData();
 
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
@@ -93,12 +94,10 @@ const BuildingMap = () => {
         console.log("Distance to the drop-off location:", distance);
         if (distance <= 500) {
           handleDropOff(location.id);
-          // console.log("Drop off successful!");
           toast.success("Drop off successful!");
         } else {
-          alert("Yo")
+          // alert(`Drop off unsuccessful, too far from the, ${location.id}`)
           toast.error(`Drop off unsuccessful, too far from the, ${location.id}`);
-          console.log("Drop off unsuccessful, too far from the ",location.id)
         }
       },
       (error) => {
@@ -224,8 +223,6 @@ const BuildingMap = () => {
     },
     [userLocation, googleMaps, createMarkersAndCalculateRoute]
   );
-
-  // console.log('User pickup outside: ', userPickup);
   
   const addCustomLocationMarkers = useCallback(() => {
     if (googleMaps && mapInstanceRef.current) {
@@ -235,8 +232,6 @@ const BuildingMap = () => {
           return; // Skip invalid rental data
         }
         let icon;
-
-        // console.log('User pickup inside: ', userPickup);
 
         // Define custom icons based on location type
         switch (i.id) {
@@ -284,7 +279,6 @@ const BuildingMap = () => {
         const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
         if (dropOffButton) {
           dropOffButton.addEventListener("click", () => {
-            console.log(`Drop-Off clicked for ${i.id}`);
             handleDrop(i);
           });
         }
@@ -292,7 +286,7 @@ const BuildingMap = () => {
 
       });
     }
-  }, [googleMaps, userData.location]);
+  }, [googleMaps]);
 
   useEffect(() => {
     const loader = new Loader({
