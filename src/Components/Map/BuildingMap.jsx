@@ -32,7 +32,7 @@ const BuildingMap = () => {
     navigate("/Profile");
   };
 
-  const { userId, refetchUserData } = useUserData();
+  const { userData, userId, refetchUserData } = useUserData();
 
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
@@ -263,6 +263,7 @@ const BuildingMap = () => {
                       <p>Lat: ${i.lat}, Lng: ${i.lng}</p>
                       <button 
                         id="dropOffButton-${i.id}" 
+                      
                       >
                         Drop-Off rentals
                       </button>
@@ -278,6 +279,13 @@ const BuildingMap = () => {
       googleMaps.maps.event.addListener(infoWindow, 'domready', () => {
         const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
         if (dropOffButton) {
+          // Disable button if userLocation is null
+          if (!userData.location) {
+            dropOffButton.disabled = true;
+          } else {
+            dropOffButton.disabled = false;
+          }
+
           dropOffButton.addEventListener("click", () => {
             handleDrop(i);
           });
@@ -286,7 +294,7 @@ const BuildingMap = () => {
 
       });
     }
-  }, [googleMaps]);
+  }, [googleMaps, userData.location]);
 
   useEffect(() => {
     const loader = new Loader({
