@@ -3,23 +3,28 @@ import "./Rentals.css";
 import SideMenu from "../SideMenu/SideMenu";
 import SearchBar from "../SearchBar/SearchBar";
 import { auth, firestore } from '../../utils/firebase.js';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc} from "firebase/firestore";
+import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
 import { useNavigate } from "react-router-dom";
-import BuildingMap from "../../BuildingMap.jsx";
 import axios from 'axios';
-
+import BuildingMap from "../Map/BuildingMap.jsx";
+import { useUserData } from '../../utils/userDataUtils.js';
 
 const Rentals = () => {
   const navigate = useNavigate();
-  const handleHOME = () => {
-    navigate("/Homepage");
+  const handleProfile = () => {
+    navigate("/Profile");
   };
 
+  const { userData, userId, refetchUserData } = useUserData();
+  const [isSearchBarEmpty, setIsSearchBarEmpty] = useState(true);
+
   const [showPopup, setShowPopup] = useState(false);
+  const [showLoadKuduPopup, setShowLoadKuduPopup] = useState(false);
+
   const [selectedBike, setSelectedBike] = useState(null);
   const [rental, setRental] = useState([]);
-  const [UID, setUserId] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
+
 
   useEffect(() => {
     // Add class when component mounts
@@ -31,44 +36,21 @@ const Rentals = () => {
     };
   }, []);
 
-  // Check if the user is logged in and get their ID
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in, set the user ID
-        setUserId(user.uid);
-        console.log('User ID:', user.uid);
+    const turnElement = document.querySelector(".turn-by-turn");
+    if (turnElement) {
+      turnElement.style.display = isSearchBarEmpty ? "block" : "none";
+    }
+  }, [isSearchBarEmpty]);
 
-        // Fetch user document to check if location exists
-        const userRef = doc(firestore, 'Users', user.uid);
-        getDoc(userRef).then((docSnap) => {
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            setUserLocation(userData.location); // Set user's location
-            console.log('User location:', userData.location); // Log the location for debugging
-          } else {
-            console.log('No such user document!');
-          }
-        }).catch((error) => {
-          console.error('Error fetching user document:', error);
-        });
-      } else {
-        // User is signed out
-        setUserId(null);
-        setUserLocation(null); // Reset user location
-        console.log('No user is logged in');
-      }
-    });
+  const handleQueryChange = (query) => {
+    setIsSearchBarEmpty(query.trim() === "");
+  };
 
-    // Clean up subscription on unmount
-    return () => unsubscribe();
-  }, []);
-
-  // Get data
+  // Get data needs to fetch constantly due to the amount of simultaneous users, performing a rent, maybe set a refetch time
   useEffect(() => {
-    // Fetch data from your API http://localhost:5000/getRent
     axios
-      .get('https://campus-transport.azurewebsites.net/api/getRent')
+      .get('https://api-campus-transport.vercel.app/getRent')
       .then((response) => {
         setRental(response.data);
       })
@@ -79,26 +61,42 @@ const Rentals = () => {
 
   // Handle Rent button click
   const handleRent = (ritem, rent) => {
-    // console.log('Rental ID:', ritem); // Check rental ID
-    // console.log('User ID:', UID); // Check user ID
-    // console.log('Location:', rent); // Check user ID
+    if (!userId || !userData) {
+      console.error("No user data found. Can't proceed with rental.");
+      return;
+    }
+
+    if (userData.kudu < 10) {
+      alert('You need more Kudu Bucks to rent this ride.');
+      return;
+    }
 
     axios
-      .post(`https://campus-transport.azurewebsites.net/api/rent/${UID}/${ritem}/${rent}`, {
-        item: ritem,
-        location: rent
-      })
+      .post(`https://api-campus-transport.vercel.app/rent/${userId}/${ritem}/${rent}`)
       .then((response) => {
-        console.log('Rental successful:', response.data);
-        handleHOME();
+        // console.log('Rental successful:', response.data);
+
+        const newKuduBalance = userData.kudu - 10;
+        const userRef = doc(firestore, 'Users', userId);
+
+        updateDoc(userRef, { kudu: newKuduBalance })
+          .then(() => {
+            console.log('Kudu Bucks updated successfully in Firestore.');
+          })
+          .catch((error) => console.error('Error updating Kudu Bucks in Firestore:', error));
+        
         alert('Rental successful!');
-        handleClosePopup();
+    
+        sessionStorage.removeItem('userData'); // Clear sessionStorage, and the cosole that appers in rentals in for the profile being stored
+        refetchUserData();
+        handleProfile();
       })
       .catch((error) => {
         console.error('Error renting item:', error);
         alert('Error renting item.');
       });
   };
+
 
   const handleRentClick = (bike) => {
     setSelectedBike(bike);
@@ -120,7 +118,8 @@ const Rentals = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar />
+            <SearchBar onQueryChange={handleQueryChange} />
+            <Popup />
             <div className="bicycle-list" id="rentalsWidth">
               {rental.map((i, index) => (
                 <div className="bicycle-item" key={index}>
@@ -132,7 +131,7 @@ const Rentals = () => {
                     href="#"
                     className="rent-link"
                     onClick={() => handleRentClick(i)}
-                    style={{ display: !userLocation ? 'block' : 'none' }} // Conditionally hide the Rent link
+                    style={{ display: !userData.location ? 'block' : 'none' }} // Conditionally hide the Rent link
                   >
                     Rent
                   </a>
@@ -150,16 +149,38 @@ const Rentals = () => {
                   Location: {selectedBike?.location} <br />
                 </p>
 
-                {!userLocation && ( // Only render the Rent button if userLocation is not present
-                  <button 
-                    className="rentBtn" 
-                    onClick={() => handleRent(selectedBike?.id, selectedBike?.location)}
-                  >
-                    Rent
-                  </button>
+                {/* Rent Button with Conditional Logic */}
+                {!userData.location && ( // Only render the Rent button if userLocation is not present
+                  <button
+                    className="rentBtn"
+                    onClick={() => {
+                      if (userData.kudu < 10) {
+                        setShowLoadKuduPopup(true); // Show the popup to load more Kudu Bucks
+                      } else {
+                        handleRent(selectedBike?.id, selectedBike?.location);
+                      }
+                    }}
+                    style={{ backgroundColor: userData.kudu < 10 ? 'red' : 'green' }}
+                    >
+                      Rent
+                    </button>
                 )}
 
                 <button className="closeBtn" onClick={handleClosePopup}>Close</button>
+              </div>
+            </div>
+          )}
+          {/* Popup to Load More Kudu Bucks */}
+          {showLoadKuduPopup && (
+            <div className="popup-overlay">
+              <div className="popup-content">
+                <h4>Insufficient Kudu Bucks</h4>
+                <p>
+                  You do not have enough Kudu Bucks to rent this item. Please load more Kudu Bucks to proceed.
+                </p>
+                <button className="closeBtn" onClick={() => setShowLoadKuduPopup(false)}>
+                  Close
+                </button>
               </div>
             </div>
           )}

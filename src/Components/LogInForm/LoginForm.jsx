@@ -59,7 +59,6 @@ const LoginForm = () => {
       toast.success("Password reset email sent! Check your inbox.");
       setShowForgotPassword(false); // Close the forgot password form
     } catch (error) {
-      console.error(error.message);
       toast.error("Error sending password reset email. Please try again.");
     }
   };
@@ -70,8 +69,8 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="wrapper">
-      <div className="wrapper_alpha">
+    <div className="wrapper_login">
+      <div className="wrapper_alpha_login">
         {!showForgotPassword ? (
           <form onSubmit={onLogin}>
             <h1>Welcome to On-Site</h1>
@@ -105,11 +104,13 @@ const LoginForm = () => {
                 <IoEyeOffSharp
                   className="icon"
                   onClick={togglePasswordVisibility}
+                  data-testid="hide-password-icon" // Add data-testid
                 />
               ) : (
                 <IoEyeSharp
                   className="icon"
                   onClick={togglePasswordVisibility}
+                  data-testid="show-password-icon" 
                 />
               )}
             </div>
@@ -151,3 +152,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
