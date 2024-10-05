@@ -2,29 +2,39 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { MapStyle } from "./MapStyle";
 import axios from 'axios';
-import { auth, firestore } from '../../utils/firebase.js';
-import { doc, getDoc} from "firebase/firestore";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "./BuildingMap.css";
+import { useUserData } from '../../utils/userDataUtils.js';
+import { useNavigate } from "react-router-dom";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
 let rental = [
   {"Vehicle":"Bicycle","id":"Bus-Station","lng":28.0282,"location":"Yale Road, AMIC"," availability":10,"lat":-26.1907},
-  {"Vehicle":"Bicycle","id":"rentals","lng":28.025,"location":"WITS Law Lawns","availability":10,"lat":-26.188},
-  {"Vehicle":"Bicycle","id":"rentals3","lng":28.028,"location":"Origin Centre","availability":10,"lat":-26.192},
-  {"Vehicle":"Skateboards","id":"rentals4","lng":28.025,"location":"WITS SCIENCE STADIUM","availability":10,"lat":-26.191},
-  {"Vehicle":"Skateboards","id":"rentals5","lng":28.026,"availability":10,"lat":-26.19,"location":"TW Kambule"},
-  {"Vehicle":"Skateboards","id":"rentals7","lng":28.03,"location":"Mens Halls Of Residence","availability":10,"lat":-26.189},
+  {"Vehicle":"Bicycle","id":"WITS Law Lawns Station","lng":28.025,"location":"WITS Law Lawns","availability":10,"lat":-26.188},
+  {"Vehicle":"Bicycle","id":"Origin Centre Station","lng":28.028,"location":"Origin Centre","availability":10,"lat":-26.192},
+  {"Vehicle":"Skateboards","id":"WSS Station","lng":28.025,"location":"WITS Science Stadium","availability":10,"lat":-26.191},
+  {"Vehicle":"Skateboards","id":"TW Kambule Station","lng":28.026,"availability":10,"lat":-26.19,"location":"TW Kambule"},
+  {"Vehicle":"Skateboards","id":"Mens Res Station","lng":28.03,"location":"Mens Halls Of Residence","availability":10,"lat":-26.189},
   {"Vehicle":"Skateboards","id":"BB","lng":28.036013,"location":"BB","availability":10,"lat":-26.182666}
 ]
 
 const BuildingMap = () => {
+
+  // Comment line 25-28 in order to remove the ESLINT errors
   // if (process.env.NODE_ENV === 'test') {
   //   return null;
   // }
+  
+  const navigate = useNavigate();
+  const handleProfile = () => {
+    navigate("/Profile");
+  };
+
+  const { userData, userId, refetchUserData } = useUserData();
+
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -46,43 +56,6 @@ const BuildingMap = () => {
   });
   const mapInstanceRef = useRef(null);
 
-  const [userPickup, setUserPickup] = useState("test");
-  const [UID, setUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in, set the user ID
-        setUserId(user.uid);
-
-        // Fetch user document to check if location and kudu bucks exists
-        const userRef = doc(firestore, 'Users', user.uid);
-        getDoc(userRef).then((docSnap) => {
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            setUserPickup(userData.location); 
-            // console.log('User location:', userData.location);
-          } else {
-            setUserId(null);
-            setUserPickup(null); 
-            console.log('No user is logged in');
-          }
-        }).catch((error) => {
-          console.error('Error fetching user document:', error);
-        });
-      } else {
-        // User is signed out
-        setUserId(null);
-        setUserPickup(null); // Reset user location
-        console.log('No user is logged in');
-      }
-    });
-
-    // Clean up subscription on unmount
-    return () => unsubscribe();
-  }, []);
-
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000; // Radius of the Earth in meters
     const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -99,21 +72,21 @@ const BuildingMap = () => {
   // Handle Rent button click
   const handleDropOff = (ritem) => {
     axios
-      .post(`https://api-campus-transport.vercel.app/cancel-rent/${UID}/${ritem}`)
+      .post(`https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`)
       .then((response) => {
         alert('Rental drop-off successful!');
+
+        sessionStorage.removeItem('userData'); // Clear sessionStorage, and the cosole that appers in rentals in for the profile being stored
+        refetchUserData();
+        handleProfile();
       })
       .catch((error) => {
         console.error('Error dropping off rental:', error);
         alert('Error dropping off rental.');
       })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   function handleDrop(location) {
-    setIsLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userLat = position.coords.latitude;
@@ -122,16 +95,14 @@ const BuildingMap = () => {
         console.log("Distance to the drop-off location:", distance);
         if (distance <= 500) {
           handleDropOff(location.id);
-          // console.log("Drop off successful!");
           toast.success("Drop off successful!");
         } else {
-          toast.error("Drop off unsuccessful, too far from the station.");
+          // alert(`Drop off unsuccessful, too far from the, ${location.id}`)
+          toast.error(`Drop off unsuccessful, too far from the, ${location.id}`);
         }
-        setIsLoading(false);
       },
       (error) => {
         toast.error("Unable to retrieve your location.");
-        setIsLoading(false);
       }
     );
   }
@@ -253,10 +224,6 @@ const BuildingMap = () => {
     },
     [userLocation, googleMaps, createMarkersAndCalculateRoute]
   );
-
-  console.log('User pickup outside: ', userPickup);
-
-  
   
   const addCustomLocationMarkers = useCallback(() => {
     if (googleMaps && mapInstanceRef.current) {
@@ -266,8 +233,6 @@ const BuildingMap = () => {
           return; // Skip invalid rental data
         }
         let icon;
-
-        console.log('User pickup inside: ', userPickup);
 
         // Define custom icons based on location type
         switch (i.id) {
@@ -299,10 +264,10 @@ const BuildingMap = () => {
                       <p>Lat: ${i.lat}, Lng: ${i.lng}</p>
                       <button 
                         id="dropOffButton-${i.id}" 
+                      
                       >
                         Drop-Off rentals
                       </button>
-                      <div id="loadingSpinner-${i.id}" class="loading-spinner" style="display: none;"></div>
                     </div>`,
         });
 
@@ -314,25 +279,23 @@ const BuildingMap = () => {
         // Listen for the 'domready' event to attach the click handler to the button
       googleMaps.maps.event.addListener(infoWindow, 'domready', () => {
         const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
-        const loadingSpinner = document.getElementById(`loadingSpinner-${i.id}`);
-        if (dropOffButton && loadingSpinner) {
-          dropOffButton.addEventListener("click", () => {
-            loadingSpinner.style.display = 'inline-block';
+        if (dropOffButton) {
+          // Disable button if userLocation is null
+          if (!userData.location) {
             dropOffButton.disabled = true;
+          } else {
+            dropOffButton.disabled = false;
+          }
+
+          dropOffButton.addEventListener("click", () => {
             handleDrop(i);
-            const checkLoadingInterval = setInterval(() => {
-              if (!isLoading) {
-                loadingSpinner.style.display = 'none';
-                dropOffButton.disabled = false;
-                clearInterval(checkLoadingInterval);
-              }
-            }, 100);
           });
         }
       });
-    });
-  }
-}, [googleMaps, userPickup, isLoading]);
+
+      });
+    }
+  }, [googleMaps, userData.location]);
 
   useEffect(() => {
     const loader = new Loader({

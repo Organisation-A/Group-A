@@ -18,9 +18,11 @@ const Logout = () => {
   }, []);
 
   const navigate = useNavigate();
-
+ 
   const handleLogout = () => {
     navigate("/");
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('buildingsData');
   };
   const handleNo = () => {
     navigate("/Homepage");

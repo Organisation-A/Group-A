@@ -90,7 +90,7 @@
   width: 500px;
   height: 600px;
   overflow-y: auto;
-  padding-left: 80px;
+  text-align: center;
 }
 
 .search-icon-button {
@@ -111,20 +111,16 @@
 
 .description1 {
   margin-top: 50px;
-  margin-right: 60px;
+  padding: 0px 10px;
 }
 
-.header1 {
-  margin-left: 40px;
-}
-
-@media (max-width: 430px) { /* Mobile, decently sized phones */
+@media (max-width: 430px) {
+  /* Mobile, decently sized phones */
   .search-form {
     max-width: 450px;
     margin-top: 70px;
     width: calc(120% - 0px);
   }
-
 }
 
 @media (max-width: 375px) { /* Mobile, horrendously sized phones */
