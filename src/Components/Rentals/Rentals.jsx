@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Rentals.css";
 import SideMenu from "../SideMenu/SideMenu";
-import SearchBar from "../SearchBar/SearchBar";
 import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc, updateDoc} from "firebase/firestore";
 import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
@@ -13,9 +12,10 @@ import BuildingMap from "../Map/BuildingMap.jsx";
 const Rentals = () => {
   const navigate = useNavigate();
   const handleHOME = () => {
-    navigate("/Homepage");
+    navigate("/Rentals");
   };
 
+  const [isLoading, setIsLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [showLoadKuduPopup, setShowLoadKuduPopup] = useState(false);
 
@@ -85,20 +85,22 @@ const Rentals = () => {
 
   // Handle Rent button click
   const handleRent = (ritem, rent) => {
-   
     if (kudu < 10) {
       alert("You need more Kudu Bucks to rent this ride.");
       handleClosePopup();
       return;
     }
 
+    setIsLoading(true); // Start loading
+
     axios
       .post(`https://api-campus-transport.vercel.app/rent/${UID}/${ritem}/${rent}`)
       .then((response) => {
+        setIsLoading(false);
         console.log('Rental successful:', response.data);
         handleHOME();
         const newKuduBalance = kudu - 10;
-        setKudu(newKuduBalance); // Update the local state
+        setKudu(newKuduBalance);
 
         const userRef = doc(firestore, 'Users', UID);
         updateDoc(userRef, {
@@ -106,17 +108,19 @@ const Rentals = () => {
         })
         .then(() => {
           console.log('Kudu Bucks updated successfully in Firestore.');
+          setIsLoading(false); // Stop loading
+          alert('Rental successful!');
+          handleClosePopup();
         })
         .catch((error) => {
           console.error('Error updating Kudu Bucks in Firestore:', error);
+          setIsLoading(false); // Stop loading even if there's an error
           alert('Error updating Kudu Bucks.');
         });
-
-        alert('Rental successful!');
-        handleClosePopup();
       })
       .catch((error) => {
         console.error('Error renting item:', error);
+        setIsLoading(false); // Stop loading if there's an error
         alert('Error renting item.');
       });
   };
@@ -132,6 +136,11 @@ const Rentals = () => {
     setSelectedBike(null);
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const toggleBar = () => {
+  setIsCollapsed((prevState) => !prevState);
+};
+
   return (
     <div className="rentals-container map-back">
       <div className="">
@@ -142,10 +151,15 @@ const Rentals = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar />
             <Popup />
-            <div className="bicycle-list" id="rentalsWidth">
-              {rental.map((i, index) => (
+            <button 
+              className={`rent-expand-button ${isCollapsed ? 'collapsed' : 'expanded'}`} 
+              onClick={toggleBar}
+            >
+              {isCollapsed ? '▶' : '◀'}
+            </button>
+            <div className={`bicycle-list ${isCollapsed ? 'collapsed' : ''}`} id="rentalsWidth">
+              {!isCollapsed && rental.map((i, index) => (
                 <div className="bicycle-item" key={index}>
                   <h3>{i.id}</h3>
                   <p>
@@ -155,7 +169,7 @@ const Rentals = () => {
                     href="#"
                     className="rent-link"
                     onClick={() => handleRentClick(i)}
-                    style={{ display: !userLocation ? 'block' : 'none' }} // Conditionally hide the Rent link
+                    style={{ display: !userLocation ? 'block' : 'none' }}
                   >
                     Rent
                   </a>
@@ -163,6 +177,12 @@ const Rentals = () => {
               ))}
             </div>
           </div>
+          {isLoading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+              <p>Processing your rental...</p>
+            </div>
+          )}
 
           {showPopup && (
             <div className="popup-overlay">

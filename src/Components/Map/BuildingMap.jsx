@@ -6,6 +6,7 @@ import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc} from "firebase/firestore";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import "./BuildingMap.css";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
@@ -44,6 +45,7 @@ const BuildingMap = () => {
 
   const [userPickup, setUserPickup] = useState("test");
   const [UID, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -101,10 +103,14 @@ const BuildingMap = () => {
       .catch((error) => {
         console.error('Error dropping off rental:', error);
         alert('Error dropping off rental.');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   function handleDrop(location) {
+    setIsLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userLat = position.coords.latitude;
@@ -116,11 +122,13 @@ const BuildingMap = () => {
           // console.log("Drop off successful!");
           toast.success("Drop off successful!");
         } else {
-          toast.error("Drop off unsuccessful, too far from the ",location.location," station.");
+          toast.error("Drop off unsuccessful, too far from the station.");
         }
+        setIsLoading(false);
       },
       (error) => {
         toast.error("Unable to retrieve your location.");
+        setIsLoading(false);
       }
     );
   }
@@ -291,6 +299,7 @@ const BuildingMap = () => {
                       >
                         Drop-Off rentals
                       </button>
+                      <div id="loadingSpinner-${i.id}" class="loading-spinner" style="display: none;"></div>
                     </div>`,
         });
 
@@ -302,21 +311,29 @@ const BuildingMap = () => {
         // Listen for the 'domready' event to attach the click handler to the button
       googleMaps.maps.event.addListener(infoWindow, 'domready', () => {
         const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
-        if (dropOffButton) {
+        const loadingSpinner = document.getElementById(`loadingSpinner-${i.id}`);
+        if (dropOffButton && loadingSpinner) {
           dropOffButton.addEventListener("click", () => {
-            console.log(`Drop-Off clicked for ${i.id}`);
+            loadingSpinner.style.display = 'inline-block';
+            dropOffButton.disabled = true;
             handleDrop(i);
+            const checkLoadingInterval = setInterval(() => {
+              if (!isLoading) {
+                loadingSpinner.style.display = 'none';
+                dropOffButton.disabled = false;
+                clearInterval(checkLoadingInterval);
+              }
+            }, 100);
           });
         }
       });
-
-      });
-    }
-  }, [googleMaps, userPickup]);
+    });
+  }
+}, [googleMaps, userPickup, isLoading]);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API HERE",
+      apiKey: "AIzaSyAROjvEMtBW9ljbodvZFoNFNCawwVbPalI",
       version: "weekly",
       libraries: ["places"],
     });
@@ -435,38 +452,31 @@ const BuildingMap = () => {
     }
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+    const toggleBar = () => {
+    setIsCollapsed((prevState) => !prevState);
+  };
+
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh" }}>
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
       {directions && (
-        <div
-          className="turn-by-turn hidden"
-          style={{
-            position: "absolute",
-            top: "90px",
-            left: "30px",
-            zIndex: "1000",
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0 2px6px rgba(0 ,0 ,0 ,0.3)",
-            maxHeight: "calc(100vh -120px)",
-            overflowY: "auto",
-            minWidth: "300px",
-            maxWidth: "400px",
-          }}
+        <>
+        <button 
+          className={`expand-button ${isCollapsed ? 'visible' : 'hidden'}`} 
+          onClick={toggleBar}
         >
+          ▶
+        </button>
+        <div className={`turn-by-turn hidden ${isCollapsed ? 'hiddenBar' : ''}`}>
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
-            }}
+          className="direc-opt"
           >
-            <h3 style={{ margin: "0" }}>Directions:</h3>
+            <h3>Directions:</h3>
             <select
+            className="selectName"
               value={selectedMode}
               onChange={(e) => {
                 setSelectedMode(e.target.value);
@@ -477,7 +487,6 @@ const BuildingMap = () => {
                   );
                 }
               }}
-              style={{ padding: "5px" }}
             >
               <option value="WALKING">Walking</option>
               <option value="DRIVING">Driving</option>
@@ -487,31 +496,21 @@ const BuildingMap = () => {
           </div>
 
           <button
+            className="colourMode"
             onClick={toggleMapStyle}
             style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              backgroundColor: isDarkStyle ? "#aab9c9" : "#1d2c4d",
-              color: "white",
-              borderRadius: "5px",
+              backgroundColor: isDarkStyle ? "#aab9c9" : "#1d2c4d"
             }}
           >
             {isDarkStyle ? "Switch to Light Mode" : "Switch to Dark Mode"}
           </button>
+          <button className="toggle-button" onClick={toggleBar}>
+            {'Collapse Directions'}
+          </button>
 
           <button
+            className="recenterButton"
             onClick={recenterMapToUserLocation}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              backgroundColor: "#4285F4",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
           >
             Recenter Map
           </button>
@@ -519,7 +518,7 @@ const BuildingMap = () => {
           <p>Distance: {directions.distance.text}</p>
           <p>Duration: {directions.duration.text}</p>
 
-          <ol style={{ paddingLeft: "30px" }}>
+          <ol>
             {directions.steps.map((step, index) => (
               <li
                 key={index}
@@ -529,6 +528,7 @@ const BuildingMap = () => {
             ))}
           </ol>
         </div>
+        </>
       )}
     </div>
   );

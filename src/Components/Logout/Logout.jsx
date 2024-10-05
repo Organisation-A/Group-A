@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "./Logout.css";
 import SideMenu from "../SideMenu/SideMenu";
 import BuildingMap from "../Map/BuildingMap";
-import SearchBar from "../SearchBar/SearchBar";
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
 
@@ -36,7 +35,6 @@ const Logout = () => {
       <div className="front">
         <SideMenu />
         <div>
-          <SearchBar />
           <div className="logout">
             <p className="question">Departing?</p>
             <button className="yes" onClick={handleLogout}>

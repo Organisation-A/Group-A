@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./BusSchedule.css";
 import SideMenu from "../SideMenu/SideMenu";
-import SearchBar from "../SearchBar/SearchBar";
 import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { jsPDF } from "jspdf";
@@ -123,7 +122,6 @@ const Busschedule = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar id="busSearch" />
             <Popup />
             <div className="bus-schedule-container">
               <h2 className="BUs">Bus Schedule</h2>
