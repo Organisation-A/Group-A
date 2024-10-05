@@ -5,12 +5,15 @@ import SideMenu from "../SideMenu/SideMenu";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth} from '../../utils/firebase.js';
+//import { auth} from '../../utils/firebase.js';
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import BuildingMap from "../Map/BuildingMap";
 import { useUserData } from '../../utils/userDataUtils.js';
+import { auth, firestore } from "../../utils/firebase";
+import { collection, getDocs } from "firebase/firestore";
+
 
 const Profile = () => {
 
@@ -21,6 +24,112 @@ const Profile = () => {
 
   const { userData, userId, refetchUserData } = useUserData(); // Reuse userData and userId
   const [rentalCancelled, setRentalCancelled] = useState(false);
+  const [AllEvents, setEvents] = useState([]);
+
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // Radius of the Earth in meters
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distance in meters
+    return distance;
+  }
+
+  // Handle Rent button click
+  const handleDropOff = (ritem) => {
+    axios
+      .post(`https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`)
+      .then((response) => {
+        alert('Rental drop-off successful!');
+
+        sessionStorage.removeItem('userData'); // Clear sessionStorage, and the cosole that appers in rentals in for the profile being stored
+        refetchUserData();
+        //handleProfile();
+      })
+      .catch((error) => {
+        console.error('Error dropping off rental:', error);
+        alert('Error dropping off rental.');
+      });
+  };
+
+  function handleDrop(location) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        const distance = calculateDistance(location.lat, location.lng, userLat, userLng);
+        console.log("Distance to the drop-off location:", distance);
+        if (distance <= 200) {
+          handleDropOff("Unallocated");
+          toast.success("Drop off successful!");
+        } else {
+          // alert(`Drop off unsuccessful, too far from the, ${location.id}`)
+          toast.error(`Drop off unsuccessful, too far from the, ${location.id}`);
+        }
+      },
+      (error) => {
+        toast.error("Unable to retrieve your location.");
+      }
+    );
+  }
+
+  function DropOffRental(event){
+    console.log(event);
+    handleDrop(event);
+  }
+
+
+  useEffect(() => {
+    // Fetch building data only once, store it in localStorage
+    const fetchEvents = async () => {
+      try {
+        // Check if buildings data already exists in localStorage
+        const storedEvents = localStorage.getItem("eventsData");
+
+        if (storedEvents) {
+          // If data exists, use it directly
+          // console.log("Fetching buildings data from localStorage");
+          setEvents(JSON.parse(storedEvents));
+        } else {
+          // If no data, fetch from Firestore
+          // console.log("Fetching buildings data from Firestore");
+          const snapshot = await getDocs(collection(firestore, "Events"));
+          let eventData = [];
+          snapshot.forEach((doc) => {
+            eventData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
+          });
+
+          // Set the data in state and store it in localStorage
+          setEvents(eventData);
+          localStorage.setItem("eventsData", JSON.stringify(eventData));
+        }
+      } catch (error) {
+        // console.error("Error fetching buildings:", error);
+      }
+    };
+
+    fetchEvents();
+
+    // Clean up localStorage on logout
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // console.log("User logged out. Clearing localStorage for buildings.");
+        localStorage.removeItem("buildingsData");
+      }
+    });
+
+    // Clean up the auth subscription on unmount
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   // console.log("ID: ", userId);
 
@@ -103,9 +212,11 @@ const Profile = () => {
 
   return (
     <div className="Profile-container map-back">
+      {/*
       <div className="back">
         <BuildingMap />
       </div>
+      */}
 
       <div className="front">
         <SideMenu />
@@ -170,6 +281,32 @@ const Profile = () => {
                     )} */}
                   </div>
                 </div>
+
+                {/* Other events from the external API mock */}
+                <div className="events">
+                  <h4>Events That May Interest You.</h4>
+                  <div className="event-list">
+                    <ul>
+                      {AllEvents.map((event, index) => (
+                        <div className="event" key={index}>
+                          <li key={index}>
+                          <h4>{event.name}</h4>
+                          <p>{event.description}</p>
+                          {/* <li key={index}>{event["name"]}</li> */}
+                          <span
+                            onClick={() => DropOffRental(event)}
+                            style={{ cursor: 'pointer', color: 'blue' }}
+                          >
+                            End Rental Here.
+                          </span>                          
+                          </li>
+                        </div>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                {/* Other events from the external API mock */}
+                
               </>
             ) : (
               <>
