@@ -454,7 +454,7 @@ const BuildingMap = () => {
   }, [googleMaps, userData.location, events]);
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "AIzaSyC30CdF5Bdn3H33Lm9FJ9hQ1O5F9rS3IWY",
+      apiKey: "API KEY HERE",
       version: "weekly",
       libraries: ["places"],
     });
