@@ -23,6 +23,7 @@ const Logout = () => {
     navigate("/");
     sessionStorage.removeItem('userData');
     sessionStorage.removeItem('buildingsData');
+    localStorage.removeItem("eventsData");
   };
   const handleNo = () => {
     navigate("/Homepage");
