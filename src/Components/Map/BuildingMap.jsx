@@ -7,70 +7,14 @@ import "react-toastify/dist/ReactToastify.css";
 import "./BuildingMap.css";
 import { useUserData } from "../../utils/userDataUtils.js";
 import { useNavigate } from "react-router-dom";
+import { auth, firestore } from "../../utils/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
-let rental = [
-  {
-    Vehicle: "Bicycle",
-    id: "Bus-Station",
-    lng: 28.0282,
-    location: "Yale Road, AMIC",
-    " availability": 10,
-    lat: -26.1907,
-  },
-  {
-    Vehicle: "Bicycle",
-    id: "WITS Law Lawns Station",
-    lng: 28.025,
-    location: "WITS Law Lawns",
-    availability: 10,
-    lat: -26.188,
-  },
-  {
-    Vehicle: "Bicycle",
-    id: "Origin Centre Station",
-    lng: 28.028,
-    location: "Origin Centre",
-    availability: 10,
-    lat: -26.192,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "WSS Station",
-    lng: 28.025,
-    location: "WITS Science Stadium",
-    availability: 10,
-    lat: -26.191,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "TW Kambule Station",
-    lng: 28.026,
-    availability: 10,
-    lat: -26.19,
-    location: "TW Kambule",
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "Mens Res Station",
-    lng: 28.03,
-    location: "Mens Halls Of Residence",
-    availability: 10,
-    lat: -26.189,
-  },
-  {
-    Vehicle: "Skateboards",
-    id: "BB",
-    lng: 28.036013,
-    location: "BB",
-    availability: 10,
-    lat: -26.182666,
-  },
-];
-
 const BuildingMap = () => {
+
   // Comment line 25-28 in order to remove the ESLINT errors
   // if (process.env.NODE_ENV === 'test') {
   //   return null;
@@ -82,6 +26,8 @@ const BuildingMap = () => {
   };
 
   const { userData, userId, refetchUserData } = useUserData();
+  const [rental, setRentals] = useState([]);
+  const [events, setEvents] = useState([]);
 
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
@@ -120,11 +66,95 @@ const BuildingMap = () => {
     return distance;
   }
 
+  useEffect(() => {
+    // Fetch building data only once, store it in localStorage
+    const fetchBuildings = async () => {
+      try {
+        // Check if buildings data already exists in localStorage
+        const storedBuildings = localStorage.getItem("rentalData");
+
+        if (storedBuildings) {
+          // If data exists, use it directly
+          setRentals(JSON.parse(storedBuildings));
+        } else {
+          // If no data, fetch from Firestore
+          const snapshot = await getDocs(collection(firestore, "Rental Station Inventory"));
+          let rentalData = [];
+          snapshot.forEach((doc) => {
+            rentalData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
+          });
+
+          // Set the data in state and store it in localStorage
+          setRentals(rentalData);
+          localStorage.setItem("rentalData", JSON.stringify(rentalData));
+        }
+      } catch (error) {
+        console.error("Error fetching rentals:", error);
+      }
+    };
+
+    fetchBuildings();
+
+    // Clean up localStorage on logout
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // console.log("User logged out. Clearing localStorage for buildings.");
+        localStorage.removeItem("rentalData");
+      }
+    });
+
+    // Clean up the auth subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+
+  useEffect(() => {
+    // Fetch building data only once, store it in localStorage
+    const fetchBuildings = async () => {
+      try {
+        // Check if buildings data already exists in localStorage
+        const storedBuildings = localStorage.getItem("eventsData");
+
+        if (storedBuildings) {
+          // If data exists, use it directly
+          setEvents(JSON.parse(storedBuildings));
+        } else {
+          // If no data, fetch from Firestore
+          const snapshot = await getDocs(collection(firestore, "Events"));
+          let eventsData = [];
+          snapshot.forEach((doc) => {
+            eventsData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
+          });
+
+          // Set the data in state and store it in localStorage
+          setEvents(eventsData);
+          localStorage.setItem("eventsData", JSON.stringify(eventsData));
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchBuildings();
+
+    // Clean up localStorage on logout
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        // console.log("User logged out. Clearing localStorage for buildings.");
+        localStorage.removeItem("eventsData");
+      }
+    });
+
+    // Clean up the auth subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+
   // Handle Rent button click
   const handleDropOff = (ritem) => {
     axios
       .post(
-        `https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`
+        `https://api-campus-transport.vercel.app/complete-rent/${userId}/${ritem}`
       )
       .then((response) => {
         alert("Rental drop-off successful!");
@@ -155,7 +185,7 @@ const BuildingMap = () => {
           handleDropOff(location.id);
           toast.success("Drop off successful!");
         } else {
-          // alert(`Drop off unsuccessful, too far from the, ${location.id}`)
+          alert(`Drop off unsuccessful, too far from the, ${location.id}`)
           toast.error(
             `Drop off unsuccessful, too far from the, ${location.id}`
           );
@@ -354,11 +384,71 @@ const BuildingMap = () => {
         });
       });
     }
-  }, [googleMaps, userData.location]);
+  }, [googleMaps, userData.location, rental]);
+
+  const addCustomLocationMarkers1 = useCallback(() => {
+    if (googleMaps && mapInstanceRef.current) {
+      events.forEach((i) => {
+        if (!i.id || !i.lat || !i.lng || !i.location) {
+          console.error("Invalid rental data:", i);
+          return; // Skip invalid rental data
+        }
+        let icon;
+
+        // Define custom icons based on location type
+        switch (i.id) {
+          default:
+            icon = {
+              url: "https://img.icons8.com/?size=100&id=Ib6dAoXkBweM&format=png&color=000000",
+              scaledSize: new googleMaps.maps.Size(50, 50),
+            };
+        }
+
+        const marker = new googleMaps.maps.Marker({
+          position: { lat: i.lat, lng: i.lng },
+          map: mapInstanceRef.current,
+          icon: icon,
+          title: i.name,
+        });
+
+        // Create an info window for each marker
+        const infoWindow = new googleMaps.maps.InfoWindow({
+          content: `<div>
+                      <h3>${i.id}</h3>
+                      <p>${i.description}</p>
+                    </div>`,
+        });
+
+        // Add click listener to open info window
+        marker.addListener("click", () => {
+          infoWindow.open(mapInstanceRef.current, marker);
+        });
+
+        // Listen for the 'domready' event to attach the click handler to the button
+        googleMaps.maps.event.addListener(infoWindow, "domready", () => {
+          const dropOffButton = document.getElementById(
+            `dropOffButton-${i.id}`
+          );
+          if (dropOffButton) {
+            // Disable button if userLocation is null
+            if (!userData.location) {
+              dropOffButton.disabled = true;
+            } else {
+              dropOffButton.disabled = false;
+            }
+
+            dropOffButton.addEventListener("click", () => {
+              handleDrop(i);
+            });
+          }
+        });
+      });
+    }
+  }, [googleMaps, userData.location, events]);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "AIzaSyAROjvEMtBW9ljbodvZFoNFNCawwVbPalI",
       version: "weekly",
       libraries: ["places"],
     });
@@ -443,6 +533,8 @@ const BuildingMap = () => {
 
       addCustomLocationMarkers();
 
+      addCustomLocationMarkers1();
+
       mapInstanceRef.current.addListener("click", (e) =>
         calculateAndDisplayRoute(e.latLng)
       );
@@ -454,6 +546,7 @@ const BuildingMap = () => {
     isDarkStyle,
     loadPersistedRoute,
     addCustomLocationMarkers,
+    addCustomLocationMarkers1
   ]);
 
   const toggleMapStyle = () => {
