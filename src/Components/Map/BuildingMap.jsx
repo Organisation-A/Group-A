@@ -23,9 +23,9 @@ let rental = [
 const BuildingMap = () => {
 
   // Comment line 25-28 in order to remove the ESLINT errors
-  if (process.env.NODE_ENV === 'test') {
-    return null;
-  }
+  // if (process.env.NODE_ENV === 'test') {
+  //   return null;
+  // }
   
   const navigate = useNavigate();
   const handleProfile = () => {
@@ -298,7 +298,7 @@ const BuildingMap = () => {
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "AIzaSyAROjvEMtBW9ljbodvZFoNFNCawwVbPalI",
       version: "weekly",
       libraries: ["places"],
     });

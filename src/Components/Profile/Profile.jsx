@@ -212,11 +212,11 @@ const Profile = () => {
 
   return (
     <div className="Profile-container map-back">
-      {/*
+      
       <div className="back">
         <BuildingMap />
       </div>
-      */}
+     
 
       <div className="front">
         <SideMenu />

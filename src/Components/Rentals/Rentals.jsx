@@ -125,7 +125,8 @@ const Rentals = () => {
                 <div className="bicycle-item" key={index}>
                   <h3>{i.id}</h3>
                   <p>
-                    Location: {i.location} Availability: {i.availability}
+                    Location: {i.location} Availability: {i.availability} 
+                    Vehicle: {i.Vehicle}
                   </p>
                   <a
                     href="#"
