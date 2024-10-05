@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 
 let rental = [
   {"Vehicle":"Bicycle","id":"Bus-Station","lng":28.0282,"location":"Yale Road, AMIC"," availability":10,"lat":-26.1907},
@@ -299,7 +300,7 @@ const BuildingMap = () => {
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "AIzaSyAROjvEMtBW9ljbodvZFoNFNCawwVbPalI",
+      apiKey: API_KEY,
       version: "weekly",
       libraries: ["places"],
     });
