@@ -4,6 +4,7 @@ import { MapStyle } from "./MapStyle";
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import "./BuildingMap.css";
 import { useUserData } from '../../utils/userDataUtils.js';
 import { useNavigate } from "react-router-dom";
 
@@ -23,16 +24,16 @@ let rental = [
 const BuildingMap = () => {
 
   // Comment line 25-28 in order to remove the ESLINT errors
-  if (process.env.NODE_ENV === 'test') {
-    return null;
-  }
+  // if (process.env.NODE_ENV === 'test') {
+  //   return null;
+  // }
   
   const navigate = useNavigate();
   const handleProfile = () => {
     navigate("/Profile");
   };
 
-  const { userId, refetchUserData } = useUserData();
+  const { userData, userId, refetchUserData } = useUserData();
 
   const mapRef = useRef(null);
   const [googleMaps, setGoogleMaps] = useState(null);
@@ -82,7 +83,7 @@ const BuildingMap = () => {
       .catch((error) => {
         console.error('Error dropping off rental:', error);
         alert('Error dropping off rental.');
-      });
+      })
   };
 
   function handleDrop(location) {
@@ -263,6 +264,7 @@ const BuildingMap = () => {
                       <p>Lat: ${i.lat}, Lng: ${i.lng}</p>
                       <button 
                         id="dropOffButton-${i.id}" 
+                      
                       >
                         Drop-Off rentals
                       </button>
@@ -278,6 +280,13 @@ const BuildingMap = () => {
       googleMaps.maps.event.addListener(infoWindow, 'domready', () => {
         const dropOffButton = document.getElementById(`dropOffButton-${i.id}`);
         if (dropOffButton) {
+          // Disable button if userLocation is null
+          if (!userData.location) {
+            dropOffButton.disabled = true;
+          } else {
+            dropOffButton.disabled = false;
+          }
+
           dropOffButton.addEventListener("click", () => {
             handleDrop(i);
           });
@@ -286,11 +295,11 @@ const BuildingMap = () => {
 
       });
     }
-  }, [googleMaps]);
+  }, [googleMaps, userData.location]);
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "API key here",
       version: "weekly",
       libraries: ["places"],
     });
@@ -409,38 +418,31 @@ const BuildingMap = () => {
     }
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+    const toggleBar = () => {
+    setIsCollapsed((prevState) => !prevState);
+  };
+
+
   return (
     <div style={{ position: "relative", width: "100%", height: "100vh" }}>
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
       {directions && (
-        <div
-          className="turn-by-turn hidden"
-          style={{
-            position: "absolute",
-            top: "90px",
-            left: "30px",
-            zIndex: "1000",
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0 2px6px rgba(0 ,0 ,0 ,0.3)",
-            maxHeight: "calc(100vh -120px)",
-            overflowY: "auto",
-            minWidth: "300px",
-            maxWidth: "400px",
-          }}
+        <>
+        <button 
+          className={`expand-button ${isCollapsed ? 'visible' : 'hidden'}`} 
+          onClick={toggleBar}
         >
+          ▶
+        </button>
+        <div className={`turn-by-turn hidden ${isCollapsed ? 'hiddenBar' : ''}`}>
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
-            }}
+          className="direc-opt"
           >
-            <h3 style={{ margin: "0" }}>Directions:</h3>
+            <h3>Directions:</h3>
             <select
+            className="selectName"
               value={selectedMode}
               onChange={(e) => {
                 setSelectedMode(e.target.value);
@@ -451,7 +453,6 @@ const BuildingMap = () => {
                   );
                 }
               }}
-              style={{ padding: "5px" }}
             >
               <option value="WALKING">Walking</option>
               <option value="DRIVING">Driving</option>
@@ -461,31 +462,21 @@ const BuildingMap = () => {
           </div>
 
           <button
+            className="colourMode"
             onClick={toggleMapStyle}
             style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              backgroundColor: isDarkStyle ? "#aab9c9" : "#1d2c4d",
-              color: "white",
-              borderRadius: "5px",
+              backgroundColor: isDarkStyle ? "#aab9c9" : "#1d2c4d"
             }}
           >
             {isDarkStyle ? "Switch to Light Mode" : "Switch to Dark Mode"}
           </button>
+          <button className="toggle-button" onClick={toggleBar}>
+            {'Collapse Directions'}
+          </button>
 
           <button
+            className="recenterButton"
             onClick={recenterMapToUserLocation}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              backgroundColor: "#4285F4",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
           >
             Recenter Map
           </button>
@@ -493,7 +484,7 @@ const BuildingMap = () => {
           <p>Distance: {directions.distance.text}</p>
           <p>Duration: {directions.duration.text}</p>
 
-          <ol style={{ paddingLeft: "30px" }}>
+          <ol>
             {directions.steps.map((step, index) => (
               <li
                 key={index}
@@ -503,6 +494,7 @@ const BuildingMap = () => {
             ))}
           </ol>
         </div>
+        </>
       )}
     </div>
   );

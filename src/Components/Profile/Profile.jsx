@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
 import SideMenu from "../SideMenu/SideMenu";
-// import SearchBar from "../SearchBar/SearchBar";
 import { FaUser } from "react-icons/fa";
 import axios from "axios";
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -212,16 +211,15 @@ const Profile = () => {
 
   return (
     <div className="Profile-container map-back">
-      {/*
+      
       <div className="back">
         <BuildingMap />
       </div>
-      */}
+     
 
       <div className="front">
         <SideMenu />
         <div>
-          {/* <SearchBar id="busSearch" /> */}
 
           {/* Profile Card */}
           <div className="profile-card">

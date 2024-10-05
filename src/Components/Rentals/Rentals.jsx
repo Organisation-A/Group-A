@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Rentals.css";
 import SideMenu from "../SideMenu/SideMenu";
-import SearchBar from "../SearchBar/SearchBar";
 import { auth, firestore } from '../../utils/firebase.js';
 import { doc, getDoc, updateDoc} from "firebase/firestore";
 import Popup from '../EmergencyAlert/EmergencyAlert.jsx';
@@ -18,7 +17,6 @@ const Rentals = () => {
 
   const { userData, userId, refetchUserData } = useUserData();
   const [isSearchBarEmpty, setIsSearchBarEmpty] = useState(true);
-
   const [showPopup, setShowPopup] = useState(false);
   const [showLoadKuduPopup, setShowLoadKuduPopup] = useState(false);
 
@@ -108,6 +106,11 @@ const Rentals = () => {
     setSelectedBike(null);
   };
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const toggleBar = () => {
+  setIsCollapsed((prevState) => !prevState);
+};
+
   return (
     <div className="rentals-container map-back">
       <div className="">
@@ -118,14 +121,21 @@ const Rentals = () => {
         <div className="front">
           <SideMenu />
           <div>
-            <SearchBar onQueryChange={handleQueryChange} />
             <Popup />
-            <div className="bicycle-list" id="rentalsWidth">
-              {rental.map((i, index) => (
+            <button 
+              className={`rent-expand-button ${isCollapsed ? 'collapsed' : 'expanded'}`} 
+              onClick={toggleBar}
+            >
+              {isCollapsed ? '▶' : '◀'}
+            </button>
+            <div className={`bicycle-list ${isCollapsed ? 'collapsed' : ''}`} id="rentalsWidth">
+              {!isCollapsed && rental.map((i, index) => (
                 <div className="bicycle-item" key={index}>
                   <h3>{i.id}</h3>
-                  <p>
+                  <p className="details-layout"> 
                     Location: {i.location} Availability: {i.availability}
+                    <br /> 
+                    Vehicle: {i.Vehicle}
                   </p>
                   <a
                     href="#"
