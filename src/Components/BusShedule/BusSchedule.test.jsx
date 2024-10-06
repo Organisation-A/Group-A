@@ -5,7 +5,7 @@ import Busschedule from './BusSchedule';
 import { getFirestore, getDocs, collection } from 'firebase/firestore';
 import html2canvas from 'html2canvas';
 import { getAuth } from "firebase/auth";
-import { jsPDF,addImage, save  } from 'jspdf';
+import jsPDF from 'jspdf';
 jest.mock('../Map/BuildingMap', () => () => <div>Mocked BuildingMap</div>);
 // Mock Firebase Firestore
 jest.mock("firebase/firestore", () => ({
@@ -64,20 +64,12 @@ const renderComponent = () => {
 // Mock html2canvas and jsPDF
 jest.mock('html2canvas', () => jest.fn());
 // Mock jsPDF
-jest.mock('jsPDF', () => {
-  const addImage = jest.fn();
-  const save = jest.fn();
-
-  return {
-    jsPDF: jest.fn().mockImplementation(() => ({
-      addImage,
-      save,
-    })),
-    // These functions can be used to verify calls later
-    addImage,
-    save,
-  };
-});
+jest.mock('jspdf', () => ({
+  jsPDF: jest.fn().mockImplementation(() => ({
+    addImage: jest.fn(),
+    save: jest.fn(),
+  })),
+}));
 
 
 describe('BusSchedule Component', () => {
