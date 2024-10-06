@@ -11,7 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import BuildingMap from "../Map/BuildingMap";
 import { useUserData } from '../../utils/userDataUtils.js';
 import { auth, firestore } from "../../utils/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 
 
 const Profile = () => {
@@ -25,63 +25,47 @@ const Profile = () => {
   const [rentalCancelled, setRentalCancelled] = useState(false);
   const [AllEvents, setEvents] = useState([]);
 
-
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371000; // Radius of the Earth in meters
-    const dLat = (lat2 - lat1) * (Math.PI / 180);
-    const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in meters
-    return distance;
-  }
+ 
+  const [showLoadKuduPopup, setShowLoadKuduPopup] = useState(false);
+  const [selectedBike, setSelectedBike] = useState(null);
 
   // Handle Rent button click
-  const handleDropOff = (ritem) => {
-    axios
-      .post(`https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`)
-      .then((response) => {
-        alert('Rental drop-off successful!');
+  const handleEventRent = (ritem, rent) => {
+    if (!userId || !userData) {
+      console.error("No user data found. Can't proceed with rental.");
+      return;
+    }
 
+    if (userData.kudu < 10) {
+      alert('You need more Kudu Bucks to rent this ride.');
+      return;
+    }
+
+    axios
+      .post(`https://api-campus-transport.vercel.app/event/${userId}/${ritem}/${rent}`)
+      .then((response) => {
+        // console.log('Rental successful:', response.data);
+
+        const newKuduBalance = userData.kudu - 10;
+        const userRef = doc(firestore, 'Users', userId);
+
+        updateDoc(userRef, { kudu: newKuduBalance })
+          .then(() => {
+            console.log('Kudu Bucks updated successfully in Firestore.');
+          })
+          .catch((error) => console.error('Error updating Kudu Bucks in Firestore:', error));
+        
+        alert('Rental successful!');
+    
         sessionStorage.removeItem('userData'); // Clear sessionStorage, and the cosole that appers in rentals in for the profile being stored
         refetchUserData();
-        //handleProfile();
+        handleHOME();
       })
       .catch((error) => {
-        console.error('Error dropping off rental:', error);
-        alert('Error dropping off rental.');
+        console.error('Error renting item:', error);
+        alert('Error renting item.');
       });
   };
-
-  function handleDrop(location) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        const distance = calculateDistance(location.lat, location.lng, userLat, userLng);
-        console.log("Distance to the drop-off location:", distance);
-        if (distance <= 200) {
-          handleDropOff("Unallocated");
-          toast.success("Drop off successful!");
-        } else {
-          // alert(`Drop off unsuccessful, too far from the, ${location.id}`)
-          toast.error(`Drop off unsuccessful, too far from the, ${location.id}`);
-        }
-      },
-      (error) => {
-        toast.error("Unable to retrieve your location.");
-      }
-    );
-  }
-
-  function DropOffRental(event){
-    console.log(event);
-    handleDrop(event);
-  }
-
 
   useEffect(() => {
     // Fetch building data only once, store it in localStorage
@@ -118,7 +102,7 @@ const Profile = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         // console.log("User logged out. Clearing localStorage for buildings.");
-        localStorage.removeItem("buildingsData");
+        localStorage.removeItem("eventsData");
       }
     });
 
@@ -158,24 +142,6 @@ const Profile = () => {
     }
   };
   
-  // Handle Rent button click
-  const cancelRent = (ritem) => {
-    axios
-      .post(`https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`)
-      .then(() => {
-        handleHOME();
-        
-        alert("Rental cancellation successful!");
-        sessionStorage.removeItem("userData");
-
-        // Reset rentalCancelled after refetch
-        setRentalCancelled(true);
-        refetchUserData(); // Trigger a refetch of the user data after cancelation
-      })
-      .catch((error) => {
-        // console.error("Error canceling rental:", error);
-      });
-  };
 
   // Perform only one fetch, and make operations using the session storage data, instead of fetching from firestore
   useEffect(() => {
@@ -187,16 +153,14 @@ const Profile = () => {
   }, [rentalCancelled, refetchUserData]);
 
 
-  // const handleCancel = () => {
-  //   setUserData(null);
-  // };
-
-  // const handleRentClick = () => {
-  //   setShowPopup(true);
-  // };
+  const handleRentClick = (vehicle) => {
+    setSelectedBike(vehicle);
+    setShowPopup(true);
+  };
 
   const handleClosePopup = () => {
     setShowPopup(false);
+    setSelectedBike(null);
   };
 
   const getKuduColor = (kudu) => {
@@ -267,16 +231,7 @@ const Profile = () => {
                     <p>
                       Pickup: {userData && userData.location ? userData.location : 'No pickup available'}
                     </p>
-
-                    {/* Only show the cancel button if the user has a current rental */}
-                    {/* {userData && userData.item && userData.location && (
-                      <a
-                        className="cancel-link"
-                        onClick={() => cancelRent(userData.item)}
-                      >
-                        Cancel Rental
-                      </a>
-                    )} */}
+                    
                   </div>
                 </div>
 
@@ -289,14 +244,16 @@ const Profile = () => {
                         <div className="event" key={index}>
                           <li key={index}>
                           <h4>{event.name}</h4>
-                          <p>{event.description}</p>
+                          <p>{event.description} Available: {event.Vehicle}</p>
                           {/* <li key={index}>{event["name"]}</li> */}
-                          <span
-                            onClick={() => DropOffRental(event)}
-                            style={{ cursor: 'pointer', color: 'blue' }}
+                          <a
+                            href="#"
+                            className="rent-link"
+                            onClick={() => handleRentClick(event)}
+                            style={{ display: !userData.location ? 'block' : 'none' }}
                           >
-                            End Rental Here.
-                          </span>                          
+                            Rent
+                          </a>                          
                           </li>
                         </div>
                       ))}
@@ -304,6 +261,51 @@ const Profile = () => {
                   </div>
                 </div>
                 {/* Other events from the external API mock */}
+                {showPopup && (
+                  <div className="popup-overlay">
+                    <div className="popup-content">
+                      <h4>Rent {selectedBike?.id}</h4>
+                      <p>
+                        Are you sure you want to rent this item? <br />
+                        Location: {selectedBike?.location} <br />
+                      </p>
+
+                      {/* Rent Button with Conditional Logic */}
+                      {!userData.location && ( // Only render the Rent button if userLocation is not present
+                        <button
+                          className="rentBtn"
+                          onClick={() => {
+                            if (userData.kudu < 10) {
+                              setShowLoadKuduPopup(true); // Show the popup to load more Kudu Bucks
+                            } else {
+                              handleEventRent(selectedBike?.id, selectedBike?.location);
+                            }
+                          }}
+                          style={{ backgroundColor: userData.kudu < 10 ? 'red' : 'green' }}
+                          >
+                            Rent
+                          </button>
+                      )}
+
+                      <button className="closeBtn" onClick={handleClosePopup}>Close</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Popup to Load More Kudu Bucks */}
+                {showLoadKuduPopup && (
+                  <div className="popup-overlay">
+                    <div className="popup-content">
+                      <h4>Insufficient Kudu Bucks</h4>
+                      <p>
+                        You do not have enough Kudu Bucks to rent this item. Please load more Kudu Bucks to proceed.
+                      </p>
+                      <button className="closeBtn" onClick={() => setShowLoadKuduPopup(false)}>
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                )}
                 
               </>
             ) : (
@@ -327,28 +329,6 @@ const Profile = () => {
                 </form>
               </>
             )}
-
-            {showPopup && (
-            <div className="popup-overlay">
-              <div className="popup-content">
-                <h4>Cancel Rental</h4>
-                <p>
-                  Are you sure you want to cancel this item? <br />
-                </p>
-                  {/* <button 
-                  className="cancelBtn" 
-                  // onClick={handleClosePopup}
-                    // className="rentBtn" 
-                     onClick={handleCancel}
-                  >
-                    Cancel
-                  </button> */}
-                
-
-                <button className="closeBtn" onClick={handleClosePopup}>Close</button>
-              </div>
-            </div>
-          )}
            
           </div>
         </div>
