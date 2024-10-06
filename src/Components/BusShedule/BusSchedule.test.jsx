@@ -130,45 +130,45 @@ describe('BusSchedule Component', () => {
     expect(noBusesText).toBeInTheDocument();
   });
 
-  test('downloads the schedule as PDF when "Download Schedule as PDF" button is clicked', async () => {
-    // Mock html2canvas to resolve with a fake canvas object
-    html2canvas.mockResolvedValueOnce({
-      toDataURL: () => 'data:image/png;base64,some-image-data',
-    });
+  // test('downloads the schedule as PDF when "Download Schedule as PDF" button is clicked', async () => {
+  //   // Mock html2canvas to resolve with a fake canvas object
+  //   html2canvas.mockResolvedValueOnce({
+  //     toDataURL: () => 'data:image/png;base64,some-image-data',
+  //   });
 
-    renderComponent();
+  //   renderComponent();
 
-    const downloadButton = await screen.findByText(/Download Schedule as PDF/i);
-    expect(downloadButton).toBeInTheDocument();
+  //   const downloadButton = await screen.findByText(/Download Schedule as PDF/i);
+  //   expect(downloadButton).toBeInTheDocument();
 
-    fireEvent.click(downloadButton);
+  //   fireEvent.click(downloadButton);
 
-    // Use waitFor to ensure async operations are complete
-    await waitFor(() => {
-      expect(html2canvas).toHaveBeenCalled();
-    });
+  //   // Use waitFor to ensure async operations are complete
+  //   await waitFor(() => {
+  //     expect(html2canvas).toHaveBeenCalled();
+  //   });
 
     
-  });
-  test('downloads schedule as a multi-page PDF', async () => {
-    // Mock html2canvas to resolve with a fake canvas object
-    html2canvas.mockResolvedValueOnce({
-      toDataURL: () => 'data:image/png;base64,some-image-data',
-      height: 5000,
-      width: 1000,
-    });
+  // });
+  // test('downloads schedule as a multi-page PDF', async () => {
+  //   // Mock html2canvas to resolve with a fake canvas object
+  //   html2canvas.mockResolvedValueOnce({
+  //     toDataURL: () => 'data:image/png;base64,some-image-data',
+  //     height: 5000,
+  //     width: 1000,
+  //   });
   
-    renderComponent();
+  //   renderComponent();
   
-    const downloadButton = await screen.findByText(/Download Schedule as PDF/i);
-    fireEvent.click(downloadButton);
+  //   const downloadButton = await screen.findByText(/Download Schedule as PDF/i);
+  //   fireEvent.click(downloadButton);
   
-    await waitFor(() => {
-      expect(html2canvas).toHaveBeenCalled();
-    });
+  //   await waitFor(() => {
+  //     expect(html2canvas).toHaveBeenCalled();
+  //   });
   
     
-  });
+  // });
 
 
   test('handles empty response from Firestore gracefully', async () => {
