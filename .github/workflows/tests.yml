@@ -25,4 +25,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/*.json
-          flags: unittests
