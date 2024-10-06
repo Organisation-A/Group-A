@@ -193,7 +193,7 @@ const Profile = () => {
               </div>
               <div className="profile-info">
                 <h2>Hello</h2>
-                <p className="name">{userData.firstName} {userData.lastName}</p>
+                <p className="name">{userData.lastName}</p>
                 <p className="name">{userData.email}</p>
                 {/* Change Password Link */}
                 <div className="change">
@@ -225,7 +225,7 @@ const Profile = () => {
                 </div> */}
                 <div className="divider"></div>
                 <div className="rent-history">
-                  <h4 className="currentRentalHeading">Current Rental</h4>
+                <h4 className="currentRentalHeading">Current Rental</h4>
                   <div className="bicycle-item">
                     <h3>{userData && userData.item ? userData.item : 'No current rental'}</h3>
                     <p>
