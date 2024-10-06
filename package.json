@@ -32,7 +32,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
-    "test": "react-scripts test --detectOpenHandles",
+    "test": "react-scripts test --detectOpenHandles --coverage",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
