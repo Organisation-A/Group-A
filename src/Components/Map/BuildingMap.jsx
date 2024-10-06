@@ -157,7 +157,7 @@ const BuildingMap = () => {
   const handleDropOff = (ritem) => {
     axios
       .post(
-        `https://api-campus-transport.vercel.app/cancel-rent/${userId}/${ritem}`
+        `https://api-campus-transport.vercel.app/complete-rent/${userId}/${ritem}`
       )
       .then((response) => {
         setIsLoading(false);
@@ -165,7 +165,6 @@ const BuildingMap = () => {
         setShowPopup(true);
         sessionStorage.removeItem("userData");
         refetchUserData();
-        handleProfile();
       })
       .catch((error) => {
         setIsLoading(false);
@@ -454,7 +453,7 @@ const BuildingMap = () => {
   }, [googleMaps, userData.location, events]);
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: "AIzaSyC30CdF5Bdn3H33Lm9FJ9hQ1O5F9rS3IWY",
       version: "weekly",
       libraries: ["places"],
     });
@@ -623,6 +622,7 @@ const BuildingMap = () => {
   const handleClosePopup = () => {
     setShowPopup(false);
     setPopupMessage("");
+    navigate("/Profile");
   };
 
   return (

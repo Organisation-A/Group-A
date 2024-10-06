@@ -21,7 +21,7 @@ const Rentals = () => {
   const [showLoadKuduPopup, setShowLoadKuduPopup] = useState(false);
 
   const [selectedBike, setSelectedBike] = useState(null);
-  const [rental, setRental] = useState([]);
+  const [rental, setRental] = useState([]); 
 
 
   useEffect(() => {
