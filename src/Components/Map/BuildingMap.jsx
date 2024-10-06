@@ -13,6 +13,8 @@ import { collection, getDocs } from "firebase/firestore";
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
+
 const BuildingMap = () => {
 
   // Comment line 25-28 in order to remove the ESLINT errors
@@ -164,6 +166,7 @@ const BuildingMap = () => {
         setPopupMessage("Rental drop-off successful!");
         setShowPopup(true);
         sessionStorage.removeItem("userData");
+
         refetchUserData();
         handleProfile();
       })
@@ -172,6 +175,7 @@ const BuildingMap = () => {
         console.error("Error dropping off rental:", error);
         setPopupMessage("Error dropping off rental.");
         setShowPopup(true);
+
       });
   };
 
@@ -194,6 +198,7 @@ const BuildingMap = () => {
           setIsLoading(false);
           setPopupMessage(`Drop off unsuccessful, too far from ${location.id}`);
           setShowPopup(true);
+
         }
       },
       (error) => {
@@ -452,9 +457,11 @@ const BuildingMap = () => {
       });
     }
   }, [googleMaps, userData.location, events]);
+
+
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: API_KEY,
       version: "weekly",
       libraries: ["places"],
     });
