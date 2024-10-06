@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor,act } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import BusSchedule from './BusSchedule';
+import Busschedule from './BusSchedule';
 import { getFirestore, getDocs, collection } from 'firebase/firestore';
 import html2canvas from 'html2canvas';
 import { getAuth } from "firebase/auth";
 import { jsPDF,addImage, save  } from 'jspdf';
-
+jest.mock('../Map/BuildingMap', () => () => <div>Mocked BuildingMap</div>);
 // Mock Firebase Firestore
 jest.mock("firebase/firestore", () => ({
   getFirestore: jest.fn(),
@@ -46,6 +46,7 @@ jest.mock("firebase/auth", () => {
     getAuth: jest.fn(() => ({
       onAuthStateChanged: jest.fn((callback) => {
         callback(null); // Mocking a logged-out user, pass a user object if you need to mock a logged-in user
+        return () => {}; // Return an unsubscribe function
       }),
     })),
   };
@@ -55,7 +56,7 @@ jest.mock("firebase/auth", () => {
 const renderComponent = () => {
   return render(
     <Router>
-      <BusSchedule />
+      <Busschedule />
     </Router>
   );
 };

@@ -5,11 +5,24 @@ import Logout from './Logout';
 
 // Mock the useNavigate hook from react-router-dom
 const mockNavigate = jest.fn();
+jest.mock('../Map/BuildingMap', () => () => <div>Mocked BuildingMap</div>);
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+jest.mock('firebase/auth', () => {
+  const originalModule = jest.requireActual('firebase/auth');
+  return {
+    ...originalModule,
+    getAuth: jest.fn(() => ({
+      onAuthStateChanged: jest.fn((callback) => {
+        callback(null); // You can pass a mock user object if needed to simulate a logged-in state
+        return jest.fn();  // Return an unsubscribe function
+      }),
+    })),
+  };
+});
 
 describe('Logout Component', () => {
   it('navigates to login page on clicking "Yes" button', () => {

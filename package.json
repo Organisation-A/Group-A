@@ -71,7 +71,8 @@
     "moduleNameMapper": {
       "\\.(css|less|sass|scss)$": "identity-obj-proxy",
       "jspdf": "<rootDir>/__mocks__/jspdf.js",
-      "html2canvas": "<rootDir>/__mocks__/html2canvas.js"
+      "html2canvas": "<rootDir>/__mocks__/html2canvas.js",
+      "^src/components/BuildingMap$": "<rootDir>/__mocks__/BuildingMap.js"
     },
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}",

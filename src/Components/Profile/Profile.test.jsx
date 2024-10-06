@@ -9,6 +9,7 @@ import { auth } from '../../utils/firebase';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+jest.mock('../Map/BuildingMap', () => () => <div>Mocked BuildingMap</div>);
 jest.mock('firebase/auth', () => ({
   sendPasswordResetEmail: jest.fn(),
   getAuth: jest.fn(() => ({
