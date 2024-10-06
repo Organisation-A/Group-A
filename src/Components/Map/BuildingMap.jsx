@@ -12,6 +12,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
+const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
 
 const BuildingMap = () => {
 
@@ -449,7 +450,7 @@ const BuildingMap = () => {
 
   useEffect(() => {
     const loader = new Loader({
-      apiKey: "API KEY HERE",
+      apiKey: API_KEY,
       version: "weekly",
       libraries: ["places"],
     });
