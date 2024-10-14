@@ -4,7 +4,7 @@
 
 Welcome to the **Campus Transportation App** repository, a part of the Smart Campus System. This project aims to enhance mobility and accessibility on campus by providing efficient navigation and transportation services.
 
-Link: https://campus-transport.azurewebsites.net
+Link: https://thankful-hill-0c753f803.5.azurestaticapps.net/
 
 ## Project Overview
 
