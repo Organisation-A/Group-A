@@ -25,7 +25,7 @@
   left: 30px;
   background-color: #1d2c4d;
   color: white;
-  border: 2px solid white; 
+  border: 2px solid white;
   border-radius: 5px;
   cursor: pointer;
   padding: 10px;
@@ -42,8 +42,7 @@
   pointer-events: auto;
 }
 
-
-.turn-by-turn{
+.turn-by-turn {
   position: absolute;
   top: 90px;
   left: 30px;
@@ -56,11 +55,12 @@
   overflow-y: auto;
   min-width: 300px;
   max-width: 400px;
-  transition: transform 0.4s ease,opacity 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-@media (max-width: 430px) { /* Mobile, decently sized phones */
-  .turn-by-turn{
+@media (max-width: 430px) {
+  /* Mobile, decently sized phones */
+  .turn-by-turn {
     top: 150px;
     max-width: 370px;
     width: 85%;
@@ -70,8 +70,9 @@
     top: 18vh;
   }
 }
-@media (max-width: 375px) { /* Mobile, horrendously sized phones */
-  .turn-by-turn{
+@media (max-width: 375px) {
+  /* Mobile, horrendously sized phones */
+  .turn-by-turn {
     top: 150px;
     max-width: 315px;
     width: 100%;
@@ -90,7 +91,7 @@
 }
 
 h3 {
-  margin:0;
+  margin: 0;
 }
 
 .selectName {
@@ -116,7 +117,7 @@ h3 {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  background-color: #4285F4;
+  background-color: #4285f4;
   color: white;
   border: none;
   border-radius: 5px;
@@ -147,8 +148,12 @@ h3 {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-overlay p {
@@ -183,7 +188,7 @@ h3 {
 .popup-content-rental button {
   margin-top: 10px;
   padding: 5px 10px;
-  background-color: #4285F4;
+  background-color: #4285f4;
   color: white;
   border: none;
   border-radius: 3px;
@@ -191,13 +196,13 @@ h3 {
 }
 
 .popup-content-rental button:hover {
-  background-color: #3367D6;
+  background-color: #3367d6;
 }
 
 .dropOffButton {
   margin-top: 10px;
   padding: 5px 10px;
-  background-color: #4285F4;
+  background-color: #4285f4;
   color: white;
   border: none;
   border-radius: 3px;
@@ -211,4 +216,13 @@ h3 {
 .dropOffButton:disabled {
   background-color: #cccccc; /* Gray background when disabled */
   cursor: not-allowed; /* Not-allowed cursor when disabled */
+}
+
+.accessibility-disclaimer {
+  background-color: #fffbe6;
+  border: 1px solid #ffe58f;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
 }
