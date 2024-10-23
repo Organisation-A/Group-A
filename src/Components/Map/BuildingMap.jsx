@@ -453,7 +453,7 @@ const BuildingMap = () => {
   }, [googleMaps, userData.location, events]);
   useEffect(() => {
     const loader = new Loader({
-      apiKey: process.env.MAP_KEY,
+      apiKey: process.env.REACT_APP_MAP_KEY,
       version: "weekly",
       libraries: ["places"],
     });
