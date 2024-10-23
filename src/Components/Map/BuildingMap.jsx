@@ -20,6 +20,7 @@ const BuildingMap = () => {
   //   return null;
   // }
 
+  console.log('Key:', process.env.REACT_APP_MAP_KEY);
   const navigate = useNavigate();
   const handleProfile = () => {
     navigate("/Profile");
