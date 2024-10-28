@@ -755,15 +755,6 @@ const BuildingMap = () => {
     };
   }, [handleGetDirections]);
 
-  useEffect(() => {
-    if (originMarker && destinationMarker) {
-      calculateRoute(
-        originMarker.getPosition(),
-        destinationMarker.getPosition()
-      );
-    }
-  }, [selectedMode, calculateRoute, originMarker, destinationMarker]);
-
   const handleClosePopup = () => {
     setShowPopup(false);
     setPopupMessage("");
