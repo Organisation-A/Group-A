@@ -598,6 +598,7 @@ const BuildingMap = () => {
         directionsServiceRef.current = new google.maps.DirectionsService();
         directionsRendererRef.current = new google.maps.DirectionsRenderer({
           suppressMarkers: true,
+          preserveViewport: true,
         });
 
         navigator.geolocation.getCurrentPosition(
@@ -754,6 +755,15 @@ const BuildingMap = () => {
       window.removeEventListener("getDirections", handleCustomEvent);
     };
   }, [handleGetDirections]);
+
+  useEffect(() => {
+    if (originMarker && destinationMarker) {
+      calculateRoute(
+        originMarker.getPosition(),
+        destinationMarker.getPosition()
+      );
+    }
+  }, [selectedMode, calculateRoute, originMarker, destinationMarker]);
 
   const handleClosePopup = () => {
     setShowPopup(false);
