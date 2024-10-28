@@ -280,7 +280,7 @@ const BuildingMap = () => {
   }
 
   const calculateRoute = useCallback(
-    (origin, destination) => {
+    (origin, destination, mode = selectedMode) => {
       if (
         !googleMaps ||
         !directionsServiceRef.current ||
@@ -294,10 +294,10 @@ const BuildingMap = () => {
       const request = {
         origin: origin,
         destination: destination,
-        travelMode: googleMaps.maps.TravelMode[selectedMode],
+        travelMode: googleMaps.maps.TravelMode[mode],
       };
 
-      if (selectedMode === "ACCESSIBILITY") {
+      if (mode === "ACCESSIBILITY") {
         request.travelMode = googleMaps.maps.TravelMode.WALKING;
         request.provideRouteAlternatives = true;
         request.avoidHighways = true;
@@ -311,7 +311,8 @@ const BuildingMap = () => {
           directionsRendererRef.current.setDirections(response);
           let routeDetails = response.routes[0].legs[0];
 
-          if (selectedMode === "ACCESSIBILITY") {
+          // Use mode parameter instead of selectedMode state
+          if (mode === "ACCESSIBILITY") {
             routeDetails.steps = routeDetails.steps.map((step) => {
               let instructions = step.instructions;
               instructions = instructions.replace(/stairs/gi, "ramp");
@@ -348,7 +349,7 @@ const BuildingMap = () => {
         }
       });
     },
-    [googleMaps, selectedMode, isCalculating]
+    [googleMaps, isCalculating]
   );
 
   const handleModeChange = useCallback(
@@ -356,7 +357,7 @@ const BuildingMap = () => {
       setSelectedMode(newMode);
       localStorage.setItem("selectedMode", newMode);
 
-      // Only recalculate if we have all necessary data
+      // Use newMode directly instead of depending on selectedMode state
       if (
         originMarkerRef.current &&
         destinationMarkerRef.current &&
@@ -365,10 +366,8 @@ const BuildingMap = () => {
         const origin = originMarkerRef.current.getPosition();
         const destination = destinationMarkerRef.current.getPosition();
 
-        // Add a small delay to ensure state is updated
-        setTimeout(() => {
-          calculateRoute(origin, destination);
-        }, 100);
+        // Pass newMode to calculateRoute
+        calculateRoute(origin, destination, newMode);
       }
     },
     [calculateRoute]
