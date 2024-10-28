@@ -58,7 +58,6 @@ const BuildingMap = () => {
   const mapInstanceRef = useRef(null);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
   const [busData, setBusData] = useState([["helo"]]);
-  const [isCalculating, setIsCalculating] = useState(false);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000; // Radius of the Earth in meters
@@ -284,12 +283,9 @@ const BuildingMap = () => {
       if (
         !googleMaps ||
         !directionsServiceRef.current ||
-        !directionsRendererRef.current ||
-        isCalculating
+        !directionsRendererRef.current
       )
         return;
-
-      setIsCalculating(true);
 
       const request = {
         origin: origin,
@@ -305,8 +301,6 @@ const BuildingMap = () => {
       }
 
       directionsServiceRef.current.route(request, (response, status) => {
-        setIsCalculating(false);
-
         if (status === "OK") {
           directionsRendererRef.current.setDirections(response);
           let routeDetails = response.routes[0].legs[0];
@@ -331,6 +325,12 @@ const BuildingMap = () => {
 
           setDirections(routeDetails);
           localStorage.setItem("directions", JSON.stringify(routeDetails));
+          if (originMarkerRef.current) {
+            originMarkerRef.current.setPosition(routeDetails.start_location);
+          }
+          if (destinationMarkerRef.current) {
+            destinationMarkerRef.current.setPosition(routeDetails.end_location);
+          }
           localStorage.setItem(
             "route",
             JSON.stringify({
@@ -348,30 +348,7 @@ const BuildingMap = () => {
         }
       });
     },
-    [googleMaps, selectedMode, isCalculating]
-  );
-
-  const handleModeChange = useCallback(
-    (newMode) => {
-      setSelectedMode(newMode);
-      localStorage.setItem("selectedMode", newMode);
-
-      // Only recalculate if we have all necessary data
-      if (
-        originMarkerRef.current &&
-        destinationMarkerRef.current &&
-        directionsServiceRef.current
-      ) {
-        const origin = originMarkerRef.current.getPosition();
-        const destination = destinationMarkerRef.current.getPosition();
-
-        // Add a small delay to ensure state is updated
-        setTimeout(() => {
-          calculateRoute(origin, destination);
-        }, 100);
-      }
-    },
-    [calculateRoute]
+    [googleMaps, selectedMode]
   );
 
   const createMarkersAndCalculateRoute = useCallback(
@@ -598,7 +575,6 @@ const BuildingMap = () => {
         directionsServiceRef.current = new google.maps.DirectionsService();
         directionsRendererRef.current = new google.maps.DirectionsRenderer({
           suppressMarkers: true,
-          preserveViewport: true,
         });
 
         navigator.geolocation.getCurrentPosition(
@@ -819,7 +795,17 @@ const BuildingMap = () => {
               <select
                 className="selectName"
                 value={selectedMode}
-                onChange={(e) => handleModeChange(e.target.value)}
+                onChange={(e) => {
+                  const newMode = e.target.value;
+                  setSelectedMode(newMode);
+                  localStorage.setItem("selectedMode", newMode);
+                  if (directions && originMarker && destinationMarker) {
+                    calculateRoute(
+                      originMarker.getPosition(),
+                      destinationMarker.getPosition()
+                    );
+                  }
+                }}
               >
                 <option value="WALKING">Walking</option>
                 <option value="DRIVING">Driving</option>
