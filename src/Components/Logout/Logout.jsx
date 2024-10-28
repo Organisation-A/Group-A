@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./Logout.css";
 import SideMenu from "../SideMenu/SideMenu";
 import BuildingMap from "../Map/BuildingMap";
+import { auth, firestore } from "../../utils/firebase"; // Import Firestore
+import { doc, updateDoc } from "firebase/firestore"; // Firestore methods
 //import { FaRegListAlt } from "react-icons/fa";
 //import { IoEyeSharp, IoMailSharp } from "react-icons/io5";
 
@@ -19,7 +21,24 @@ const Logout = () => {
 
   const navigate = useNavigate();
  
-  const handleLogout = () => {
+
+  const updateUserStatusOnLogout = async () => {
+    const user = auth.currentUser; // Get current user
+    if (user && user.email === "2543080@students.wits.ac.za") {
+      try {
+        const busDoc = doc(firestore, "Bus", "Full Circuit");
+        await updateDoc(busDoc, {
+          active: false,
+        });
+        console.log("User status set to inactive in Firestore.");
+      } catch (error) {
+      } 
+    }
+  };
+
+
+  const handleLogout =async() => {
+    await updateUserStatusOnLogout();
     navigate("/");
     sessionStorage.removeItem('userData');
     sessionStorage.removeItem('buildingsData');

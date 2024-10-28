@@ -6,6 +6,8 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
+import { doc, updateDoc } from "firebase/firestore"; 
+import { firestore } from "../../utils/firebase"; 
 import auth from "../../utils/firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,11 +36,40 @@ const LoginForm = () => {
     navigate("/Signup");
   };
 
+
+  const updateUserLocationAndStatus = async () => {
+    try {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // Update Firestore for the specific document "Full Circuit" in the "Bus" collection
+        const busDoc = doc(firestore, "Bus", "Full Circuit");
+        await updateDoc(busDoc, {
+          lat: lat.toString(),
+          lng: lng.toString(),
+          active: true,
+        });
+
+        console.log("User's location and status updated in Firestore.");
+      }, (error) => {
+        console.error("Error fetching user location:", error);
+      });
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+    }
+  };
+
   const onLogin = async (e) => {
     e.preventDefault();
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+
+      if (email === "2543080@students.wits.ac.za") {
+        // Update Firestore with location and set active to true
+        updateUserLocationAndStatus();
+      }
       toast.success("Login successful!");
       navigate("/homepage"); // Redirect to homepage on successful login
     } catch (error) {

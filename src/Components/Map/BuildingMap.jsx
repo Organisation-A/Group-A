@@ -14,14 +14,13 @@ const fallbackLatitude = -26.1893;
 const fallbackLongitude = 28.0271;
 
 const BuildingMap = () => {
-
   // Comment line 25-28 in order to remove the ESLINT errors
   // if (process.env.NODE_ENV === 'test') {
   //   return null;
   // }
 
   // console.log('Key:', process.env.REACT_APP_MAP_KEY);
-  
+
   const navigate = useNavigate();
   const handleProfile = () => {
     navigate("/Profile");
@@ -43,7 +42,10 @@ const BuildingMap = () => {
     const savedDirections = localStorage.getItem("directions");
     return savedDirections ? JSON.parse(savedDirections) : null;
   });
-  const [selectedMode, setSelectedMode] = useState("WALKING");
+  const [selectedMode, setSelectedMode] = useState(() => {
+    const savedMode = localStorage.getItem("selectedMode");
+    return savedMode || "WALKING"; // Default to "WALKING" if no saved mode
+  });
   const [originMarker, setOriginMarker] = useState(null);
   const [destinationMarker, setDestinationMarker] = useState(null);
   const originMarkerRef = useRef(null);
@@ -55,6 +57,7 @@ const BuildingMap = () => {
   });
   const mapInstanceRef = useRef(null);
   const [selectedCoordinates, setSelectedCoordinates] = useState(null);
+  const [busData, setBusData] = useState([["helo"]]);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371000; // Radius of the Earth in meters
@@ -83,7 +86,9 @@ const BuildingMap = () => {
           setRentals(JSON.parse(storedBuildings));
         } else {
           // If no data, fetch from Firestore
-          const snapshot = await getDocs(collection(firestore, "Rental Station Inventory"));
+          const snapshot = await getDocs(
+            collection(firestore, "Rental Station Inventory")
+          );
           let rentalData = [];
           snapshot.forEach((doc) => {
             rentalData.push({ id: doc.id, ...doc.data() }); // Use document ID as the building name
@@ -111,7 +116,6 @@ const BuildingMap = () => {
     // Clean up the auth subscription on unmount
     return () => unsubscribe();
   }, []);
-
 
   useEffect(() => {
     // Fetch building data only once, store it in localStorage
@@ -154,6 +158,74 @@ const BuildingMap = () => {
     return () => unsubscribe();
   }, []);
 
+  //handle bus tracking
+  useEffect(() => {
+    // Fetch bus data and store it in localStorage
+    const fetchBusData = async () => {
+      try {
+        // Check if bus data already exists in localStorage
+        const storedBusData = localStorage.getItem("busData");
+
+        if (storedBusData) {
+          // If bus data exists, use it directly
+          setBusData(JSON.parse(storedBusData));
+        } else {
+          // If no data, fetch from Firestore
+          const busSnapshot = await getDocs(collection(firestore, "Bus"));
+          let buses = [];
+          busSnapshot.forEach((doc) => {
+            buses.push({ id: doc.id, ...doc.data() }); // Correctly get document data
+          });
+
+          // Set the data in state and store it in localStorage
+          setBusData(buses);
+          localStorage.setItem("busData", JSON.stringify(buses));
+        }
+
+        console.log("Bus data: ", busData); // Log bus data to check
+      } catch (error) {
+        console.error("Error fetching bus data:", error);
+      }
+    };
+
+    fetchBusData();
+
+    // Clean up localStorage on logout
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        localStorage.removeItem("busData");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const addBusMarkers = useCallback(() => {
+    if (googleMaps && mapInstanceRef.current) {
+      busData.forEach((bus) => {
+        if (bus.active && bus.lat && bus.lng) {
+          const busMarker = new googleMaps.maps.Marker({
+            position: { lat: parseFloat(bus.lat), lng: parseFloat(bus.lng) },
+            map: mapInstanceRef.current,
+            icon: {
+              url: "https://img.icons8.com/?size=100&id=rbzJQybQmfOt&format=png&color=000000",
+              scaledSize: new googleMaps.maps.Size(50, 50),
+            },
+            title: `Bus: ${bus.id}`,
+          });
+
+          // Optional: Add an info window for bus details
+          const infoWindow = new googleMaps.maps.InfoWindow({
+            content: `<div><h3>Bus: ${bus.id}</h3></div>`,
+          });
+
+          busMarker.addListener("click", () => {
+            infoWindow.open(mapInstanceRef.current, busMarker);
+          });
+        }
+      });
+    }
+  }, [googleMaps, busData]);
 
   // Handle Rent button click
   const handleDropOff = (ritem) => {
@@ -189,7 +261,8 @@ const BuildingMap = () => {
           userLng
         );
         console.log("Distance to the drop-off location:", distance);
-        if (distance <= 500) { //change this
+        if (distance <= 500) {
+          //change this
           handleDropOff(location.id);
         } else {
           setIsLoading(false);
@@ -200,45 +273,80 @@ const BuildingMap = () => {
       (error) => {
         setIsLoading(false);
         setPopupMessage("Unable to retrieve your location.");
-        setShowPopup(true)
+        setShowPopup(true);
       }
     );
   }
 
   const calculateRoute = useCallback(
     (origin, destination) => {
-      directionsServiceRef.current.route(
-        {
-          origin: origin,
-          destination: destination,
-          travelMode: googleMaps.maps.TravelMode[selectedMode],
-        },
-        (response, status) => {
-          if (status === "OK") {
-            directionsRendererRef.current.setDirections(response);
-            const routeDetails = response.routes[0].legs[0];
-            setDirections(routeDetails);
-            localStorage.setItem("directions", JSON.stringify(routeDetails));
-            if (originMarkerRef.current) {
-              originMarkerRef.current.setPosition(routeDetails.start_location);
-            }
-            if (destinationMarkerRef.current) {
-              destinationMarkerRef.current.setPosition(
-                routeDetails.end_location
+      if (
+        !googleMaps ||
+        !directionsServiceRef.current ||
+        !directionsRendererRef.current
+      )
+        return;
+
+      const request = {
+        origin: origin,
+        destination: destination,
+        travelMode: googleMaps.maps.TravelMode[selectedMode],
+      };
+
+      if (selectedMode === "ACCESSIBILITY") {
+        request.travelMode = googleMaps.maps.TravelMode.WALKING;
+        request.provideRouteAlternatives = true;
+        request.avoidHighways = true;
+        request.avoidTolls = true;
+      }
+
+      directionsServiceRef.current.route(request, (response, status) => {
+        if (status === "OK") {
+          directionsRendererRef.current.setDirections(response);
+          let routeDetails = response.routes[0].legs[0];
+
+          if (selectedMode === "ACCESSIBILITY") {
+            routeDetails.steps = routeDetails.steps.map((step) => {
+              let instructions = step.instructions;
+              instructions = instructions.replace(/stairs/gi, "ramp");
+              instructions = instructions.replace(
+                /\b(walk|Walk|WALK)\b/g,
+                (match) => {
+                  if (match === "walk") return "move";
+                  if (match === "Walk") return "Move";
+                  if (match === "WALK") return "MOVE";
+                  return match;
+                }
               );
-            }
-            localStorage.setItem(
-              "route",
-              JSON.stringify({
-                origin: routeDetails.start_location.toJSON(),
-                destination: routeDetails.end_location.toJSON(),
-              })
-            );
-          } else {
-            console.log("Directions request failed due to " + status);
+              step.instructions = instructions;
+              return step;
+            });
           }
+
+          setDirections(routeDetails);
+          localStorage.setItem("directions", JSON.stringify(routeDetails));
+          if (originMarkerRef.current) {
+            originMarkerRef.current.setPosition(routeDetails.start_location);
+          }
+          if (destinationMarkerRef.current) {
+            destinationMarkerRef.current.setPosition(routeDetails.end_location);
+          }
+          localStorage.setItem(
+            "route",
+            JSON.stringify({
+              origin: routeDetails.start_location.toJSON(),
+              destination: routeDetails.end_location.toJSON(),
+            })
+          );
+        } else {
+          console.log("Directions request failed due to " + status);
+          setDirections(null);
+          setPopupMessage(
+            "Unable to find a route. Please try a different mode or destination."
+          );
+          setShowPopup(true);
         }
-      );
+      });
     },
     [googleMaps, selectedMode]
   );
@@ -542,6 +650,8 @@ const BuildingMap = () => {
 
       addCustomLocationMarkers1();
 
+      addBusMarkers(); // Add bus markers to the map
+
       mapInstanceRef.current.addListener("click", (e) =>
         calculateAndDisplayRoute(e.latLng)
       );
@@ -553,7 +663,8 @@ const BuildingMap = () => {
     isDarkStyle,
     loadPersistedRoute,
     addCustomLocationMarkers,
-    addCustomLocationMarkers1
+    addCustomLocationMarkers1,
+    addBusMarkers,
   ]);
 
   const toggleMapStyle = () => {
@@ -621,10 +732,26 @@ const BuildingMap = () => {
     };
   }, [handleGetDirections]);
 
+  useEffect(() => {
+    if (originMarker && destinationMarker) {
+      calculateRoute(
+        originMarker.getPosition(),
+        destinationMarker.getPosition()
+      );
+    }
+  }, [selectedMode, calculateRoute, originMarker, destinationMarker]);
+
   const handleClosePopup = () => {
     setShowPopup(false);
     setPopupMessage("");
     navigate("/Profile");
+  };
+
+  const handleCloseNoRoutePopup = () => {
+    setShowPopup(false);
+    setPopupMessage("");
+    // Recalculate route with walking mode
+    setSelectedMode("WALKING");
   };
 
   return (
@@ -635,7 +762,7 @@ const BuildingMap = () => {
           <p>Processing drop-off...</p>
         </div>
       )}
-       {showPopup && (
+      {showPopup && (
         <div className="popup-overlay-rental">
           <div className="popup-content-rental">
             <p>{popupMessage}</p>
@@ -643,6 +770,15 @@ const BuildingMap = () => {
           </div>
         </div>
       )}
+      {showPopup && (
+        <div className="popup-overlay-rental">
+          <div className="popup-content-rental">
+            <p>{popupMessage}</p>
+            <button onClick={handleCloseNoRoutePopup}>Close</button>
+          </div>
+        </div>
+      )}
+
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
       {directions && (
@@ -650,9 +786,7 @@ const BuildingMap = () => {
           <button
             className={`expand-button ${isCollapsed ? "visible" : "hidden"}`}
             onClick={toggleBar}
-          >
-            ▶
-          </button>
+          ></button>
           <div
             className={`turn-by-turn hidden ${isCollapsed ? "hiddenBar" : ""}`}
           >
@@ -662,7 +796,9 @@ const BuildingMap = () => {
                 className="selectName"
                 value={selectedMode}
                 onChange={(e) => {
-                  setSelectedMode(e.target.value);
+                  const newMode = e.target.value;
+                  setSelectedMode(newMode);
+                  localStorage.setItem("selectedMode", newMode);
                   if (directions && originMarker && destinationMarker) {
                     calculateRoute(
                       originMarker.getPosition(),
@@ -673,8 +809,7 @@ const BuildingMap = () => {
               >
                 <option value="WALKING">Walking</option>
                 <option value="DRIVING">Driving</option>
-                <option value="BICYCLING">Bicycling</option>
-                <option value="TRANSIT">Transit</option>
+                <option value="ACCESSIBILITY">Accessibility</option>
               </select>
             </div>
 
@@ -697,19 +832,29 @@ const BuildingMap = () => {
             >
               Recenter Map
             </button>
+            {selectedMode === "ACCESSIBILITY" && (
+              <p className="accessibility-disclaimer">
+                Disclaimer: The accessibility option uses walking directions
+                optimized for accessibility. However, it may not account for all
+                accessibility needs. Please use caution and consider local
+                conditions.
+              </p>
+            )}
 
-            <p>Distance: {directions.distance.text}</p>
-            <p>Duration: {directions.duration.text}</p>
+            {directions.distance && <p>Distance: {directions.distance.text}</p>}
+            {directions.duration && <p>Duration: {directions.duration.text}</p>}
 
-            <ol>
-              {directions.steps.map((step, index) => (
-                <li
-                  key={index}
-                  dangerouslySetInnerHTML={{ __html: step.instructions }}
-                  style={{ marginBottom: "10px" }}
-                ></li>
-              ))}
-            </ol>
+            {directions && directions.steps && directions.steps.length > 0 && (
+              <ol>
+                {directions.steps.map((step, index) => (
+                  <li
+                    key={index}
+                    dangerouslySetInnerHTML={{ __html: step.instructions }}
+                    style={{ marginBottom: "10px" }}
+                  ></li>
+                ))}
+              </ol>
+            )}
           </div>
         </>
       )}
