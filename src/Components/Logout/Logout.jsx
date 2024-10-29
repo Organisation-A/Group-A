@@ -55,7 +55,7 @@ const Logout = () => {
       </div>
 
       <div className="front">
-        <SideMenu />
+      <SideMenu /> 
         <div>
           <div className="logout">
             <p className="question">Departing?</p>
