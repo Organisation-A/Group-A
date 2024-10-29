@@ -193,7 +193,7 @@ const Profile = () => {
               </div>
               <div className="profile-info">
                 <h2>Hello</h2>
-                <p className="name">{userData.lastName}</p>
+                <p className="name">{userData.firstName} {userData.lastName}</p>
                 <p className="name">{userData.email}</p>
                 {/* Change Password Link */}
                 <div className="change">

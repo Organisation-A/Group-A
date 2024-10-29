@@ -87,4 +87,7 @@ a {
   .logo {
     display: none;
   }
+  .side-menu {
+    position: fixed;
+  }
 }
