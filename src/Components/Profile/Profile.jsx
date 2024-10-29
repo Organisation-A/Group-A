@@ -179,10 +179,8 @@ const Profile = () => {
       <div className="back">
         <BuildingMap />
       </div>
-     
-
       <div className="front">
-        <SideMenu />
+      <SideMenu />
         <div>
 
           {/* Profile Card */}

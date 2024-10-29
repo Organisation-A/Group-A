@@ -132,6 +132,7 @@ const Busschedule = () => {
   return (
     <div className="Bus-container">
       <div className="content-container map-back">
+      
         <div className="back">
           <BuildingMap />
         </div>

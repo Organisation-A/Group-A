@@ -717,6 +717,8 @@ const BuildingMap = () => {
   };
 
   useEffect(() => {
+    let isActive = true;
+
     if (
       selectedCoordinates &&
       googleMaps &&
@@ -727,15 +729,19 @@ const BuildingMap = () => {
         selectedCoordinates.latitude,
         selectedCoordinates.longitude
       );
-      calculateAndDisplayRoute(destinationLatLng);
+
+      // Only proceed if component is still mounted
+      if (isActive) {
+        calculateAndDisplayRoute(destinationLatLng);
+        // Clear selectedCoordinates after route is calculated
+        setSelectedCoordinates(null);
+      }
     }
-  }, [
-    selectedCoordinates,
-    googleMaps,
-    mapInstanceRef,
-    userLocation,
-    calculateAndDisplayRoute,
-  ]);
+
+    return () => {
+      isActive = false;
+    };
+  }, [selectedCoordinates]);
 
   const handleGetDirections = useCallback((latitude, longitude) => {
     setSelectedCoordinates({ latitude, longitude });
