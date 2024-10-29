@@ -175,14 +175,12 @@ const Profile = () => {
 
   return (
     <div className="Profile-container map-back">
-      
+      <SideMenu />
       <div className="back">
         <BuildingMap />
       </div>
-     
-
       <div className="front">
-        <SideMenu />
+      
         <div>
 
           {/* Profile Card */}

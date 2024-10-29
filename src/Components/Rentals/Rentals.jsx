@@ -113,13 +113,14 @@ const Rentals = () => {
 
   return (
     <div className="rentals-container map-back">
+      <SideMenu />
       <div className="">
         <div className="back">
           <BuildingMap />
         </div>
 
         <div className="front">
-          <SideMenu />
+          
           <div>
             <Popup />
             <button 

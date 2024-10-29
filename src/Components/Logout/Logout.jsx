@@ -50,12 +50,13 @@ const Logout = () => {
 
   return (
     <div className="Logout-container map-back">
+      <SideMenu />
       <div className="back">
         <BuildingMap />
       </div>
 
       <div className="front">
-        <SideMenu />
+        
         <div>
           <div className="logout">
             <p className="question">Departing?</p>
