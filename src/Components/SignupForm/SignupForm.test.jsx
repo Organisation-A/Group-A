@@ -6,7 +6,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/
 import { setDoc, doc } from "firebase/firestore";
 import { ToastContainer } from "react-toastify";
 import { auth } from "../../utils/firebase";
-
+ 
 // Mock Firebase functions
 jest.mock("firebase/auth", () => ({
   createUserWithEmailAndPassword: jest.fn(),

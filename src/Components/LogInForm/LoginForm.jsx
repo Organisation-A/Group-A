@@ -65,7 +65,7 @@ const LoginForm = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-
+ 
       if (email === "2543080@students.wits.ac.za") {
         // Update Firestore with location and set active to true
         updateUserLocationAndStatus();

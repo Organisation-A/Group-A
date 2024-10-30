@@ -30,7 +30,6 @@ const Logout = () => {
         await updateDoc(busDoc, {
           active: false,
         });
-        console.log("User status set to inactive in Firestore.");
       } catch (error) {
       } 
     }

@@ -5,7 +5,7 @@ import Homepage from './Homepage'; // Adjust the import path as needed
 
 // Mock the useNavigate hook from react-router-dom
 const mockNavigate = jest.fn();
-
+ 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,

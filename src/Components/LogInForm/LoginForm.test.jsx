@@ -154,6 +154,7 @@ describe('LoginForm Component', () => {
       expect(errorToast).toBeInTheDocument();
     });
   });
+  
 
   test('navigates to homepage on successful login', async () => {
     signInWithEmailAndPassword.mockResolvedValueOnce({ user: { uid: '12345' } });
@@ -178,6 +179,23 @@ describe('LoginForm Component', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/homepage');
     });
   });
+  test('does not allow password reset without email', async () => {
+    renderWithRouter(
+      <>
+        <LoginForm />
+        <ToastContainer />
+      </>
+    );
+  
+    fireEvent.click(screen.getByText(/forgot password/i));
+    fireEvent.click(screen.getByText(/send reset email/i));
+  
+    await waitFor(() => {
+      const errorToast = screen.getByText(/please enter your email address/i);
+      expect(errorToast).toBeInTheDocument();
+    });
+  });
+  
 });
 
 

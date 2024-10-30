@@ -8,7 +8,7 @@ import { TbRoute } from "react-icons/tb";
 const SideMenu = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Get current location
-
+ 
   const handleNavigation = (path) => {
     navigate(path);
   };

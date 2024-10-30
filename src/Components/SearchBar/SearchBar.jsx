@@ -5,7 +5,7 @@ import { FaSearch } from "react-icons/fa";
 import { MdClear } from "react-icons/md";
 import { auth, firestore } from "../../utils/firebase";
 import { collection, getDocs } from "firebase/firestore";
-
+ 
 const SearchBar = ({ onQueryChange, forceShowDropdown = false  }) => {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState([]);
