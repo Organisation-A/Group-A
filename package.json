@@ -75,13 +75,19 @@
       "^src/components/BuildingMap$": "<rootDir>/__mocks__/BuildingMap.js"
     },
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}",
-      "api/*.{js,jsx}",
-      "!src/serviceWorker.js",
-      "!src/__mocks__/firebase/auth.js",
-      "!src/Components/Map/BuildingMap.jsx",
-      "!**/node_modules/**",
-      "!**/__mocks__/**"
+    "src/**/*.{js,jsx}",
+    "api/*.{js,jsx}",
+    "!src/serviceWorker.js",
+    "!src/__mocks__/firebase/auth.js",
+    "!src/Components/Map/BuildingMap.jsx",
+    "!src/Components/Map/location1.jsx",         
+    "!src/index.js",                            
+    "!src/reportWebVitals.js",                   
+    "!src/testUtils.js",                         
+    "!src/url_config.js",                        
+    "!src/_mocks_/firebase/auth.js",             
+    "!**/node_modules/**",
+    "!**/__mocks__/**"
     ],
     "coverageReporters": [
       "json",
