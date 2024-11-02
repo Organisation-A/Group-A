@@ -3,7 +3,7 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import SearchBar from './SearchBar';
 import { auth, firestore } from '../../utils/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-
+ 
 jest.mock('../../utils/firebase', () => ({
   auth: {
     onAuthStateChanged: jest.fn(() => jest.fn()), // Return a mock unsubscribe function

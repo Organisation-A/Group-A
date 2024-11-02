@@ -12,7 +12,7 @@ jest.mock("firebase/auth", () => ({
   createUserWithEmailAndPassword: jest.fn(),
   sendEmailVerification: jest.fn(),
   getAuth: jest.fn(() => ({ currentUser: { uid: "test-uid" } })),
-}));
+})); 
 
 jest.mock("firebase/firestore", () => ({
   getFirestore: jest.fn(),

@@ -4,7 +4,7 @@ import Profile from './Profile';
 import { BrowserRouter } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { ToastContainer } from 'react-toastify';
-import { getDoc } from 'firebase/firestore';
+import { getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { auth } from '../../utils/firebase';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,8 @@ jest.mock('firebase/auth', () => ({
 
 jest.mock('firebase/firestore', () => ({
   getDoc: jest.fn(),
+  updateDoc: jest.fn(),
+  collection: jest.fn(),
   doc: jest.fn(),
 }));
 
@@ -39,6 +41,7 @@ jest.mock('react-router-dom', () => ({
 const renderWithRouter = (ui) => {
   return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
+
 
 describe('Profile Component', () => {
   let mockNavigate;
@@ -84,7 +87,9 @@ describe('Profile Component', () => {
       </>
     );
 
-    expect(await screen.findByText(/John/i)).toBeInTheDocument();
+    const elements = await screen.findAllByText(/John/i);
+    expect(elements[0]).toHaveTextContent('John Doe');
+    
     expect(screen.getByText(/john.doe@example.com/i)).toBeInTheDocument();
     expect(screen.getByText(/50/i)).toBeInTheDocument();
     expect(screen.getByText(/bike/i)).toBeInTheDocument();
@@ -118,7 +123,7 @@ describe('Profile Component', () => {
     fireEvent.click(screen.getByText(/cancel/i));
     expect(screen.queryByText(/reset password/i)).not.toBeInTheDocument();
   });
-
+  
   test('sends reset password email successfully', async () => {
     sendPasswordResetEmail.mockResolvedValueOnce();
 
@@ -175,7 +180,8 @@ describe('Profile Component', () => {
       </>
     );
 
-    expect(await screen.findByText(/john/i)).toBeInTheDocument();
+    expect(await screen.findByText(/john Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/current rental/i)).toBeInTheDocument();
   });
+  
 });

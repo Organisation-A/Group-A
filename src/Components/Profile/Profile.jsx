@@ -190,7 +190,7 @@ const Profile = () => {
                 <FaUser className="ProfileIcon1" />
               </div>
               <div className="profile-info">
-                <h2>Hello</h2>
+                <h2>Hello</h2> 
                 <p className="name">{userData.firstName} {userData.lastName}</p>
                 <p className="name">{userData.email}</p>
                 {/* Change Password Link */}
@@ -272,6 +272,7 @@ const Profile = () => {
                       {!userData.location && ( // Only render the Rent button if userLocation is not present
                         <button
                           className="rentBtn"
+                          data-testid="rent-button"
                           onClick={() => {
                             if (userData.kudu < 10) {
                               setShowLoadKuduPopup(true); // Show the popup to load more Kudu Bucks

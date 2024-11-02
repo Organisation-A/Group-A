@@ -10,7 +10,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
-
+ 
 describe('Homepage Component', () => {
   it('navigates to home page on clicking "Sign out"', () => {
     render(

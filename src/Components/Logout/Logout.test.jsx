@@ -13,7 +13,7 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
-
+ 
 // Mock Firebase functions for auth and Firestore
 jest.mock('../../utils/firebase', () => ({
   auth: {
